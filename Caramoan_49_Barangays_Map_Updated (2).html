@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Caramoan – Official 49 Barangays Map</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css"/>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+  <style>
+    *{margin:0;padding:0;box-sizing:border-box}
+    body{font-family:'Segoe UI',Arial,sans-serif;background:#0d1b2a;color:#fff;height:100vh;display:flex;flex-direction:column}
+
+    header{background:linear-gradient(135deg,#1a3a5c,#0d2137);padding:11px 18px;display:flex;align-items:center;justify-content:space-between;border-bottom:2px solid #2e6da4;flex-shrink:0}
+    header h1{font-size:1.15rem;font-weight:700;color:#7ec8e3;letter-spacing:1px}
+    header p{font-size:0.73rem;color:#a0bfcc;margin-top:2px}
+    .badge{background:#2e6da4;color:#fff;font-size:0.74rem;padding:4px 12px;border-radius:20px;font-weight:700;white-space:nowrap;margin-left:12px}
+
+    #map{flex:1;width:100%}
+
+    .sidebar{position:absolute;top:72px;right:10px;z-index:1000;background:rgba(13,27,42,0.94);border:1px solid #2e6da4;border-radius:10px;padding:10px 12px;max-height:calc(100vh - 86px);overflow-y:auto;width:205px;backdrop-filter:blur(6px)}
+    .sidebar h3{font-size:0.7rem;text-transform:uppercase;letter-spacing:1px;color:#7ec8e3;margin-bottom:6px;border-bottom:1px solid #2e6da4;padding-bottom:4px}
+    #search-box{width:100%;background:#0d2137;border:1px solid #2e6da4;color:#c8dce8;padding:5px 7px;border-radius:5px;font-size:0.72rem;margin-bottom:7px;outline:none}
+    #search-box::placeholder{color:#4a6a7a}
+    .zone-label{font-size:0.63rem;text-transform:uppercase;letter-spacing:1px;color:#f5c842;margin:8px 0 3px;font-weight:700;padding-left:3px}
+    .sidebar ul{list-style:none}
+    .sidebar ul li{font-size:0.72rem;padding:2px 5px;color:#c8dce8;cursor:pointer;border-radius:4px;transition:background 0.15s;line-height:1.4}
+    .sidebar ul li:hover{background:#1a3a5c;color:#7ec8e3}
+    .sidebar ul li.pob{color:#f5c842;font-weight:600}
+    .sidebar::-webkit-scrollbar{width:4px}
+    .sidebar::-webkit-scrollbar-thumb{background:#2e6da4;border-radius:4px}
+
+    .legend{position:absolute;bottom:26px;left:10px;z-index:1000;background:rgba(13,27,42,0.9);border:1px solid #2e6da4;border-radius:8px;padding:9px 13px;font-size:0.69rem;color:#a0bfcc}
+    .legend-title{font-size:0.67rem;text-transform:uppercase;letter-spacing:1px;color:#7ec8e3;margin-bottom:5px;font-weight:700}
+    .leg-row{display:flex;align-items:center;gap:7px;margin-bottom:3px}
+    .dot{width:11px;height:11px;border-radius:50%;flex-shrink:0;border:1.5px solid rgba(255,255,255,0.35)}
+
+    .leaflet-popup-content-wrapper{background:#0d2137;color:#c8dce8;border:1px solid #2e6da4;border-radius:8px;box-shadow:0 4px 20px rgba(0,0,0,0.5)}
+    .leaflet-popup-tip{background:#0d2137}
+    .leaflet-popup-content{font-size:0.82rem;margin:10px 14px}
+    .popup-num{font-size:0.62rem;color:#5bc0eb;letter-spacing:1px;text-transform:uppercase}
+    .popup-title{font-size:1rem;font-weight:700;color:#fff;margin:2px 0 3px}
+    .popup-zone{display:inline-block;font-size:0.67rem;padding:2px 8px;border-radius:10px;margin-bottom:2px;font-weight:600}
+
+
+  </style>
+</head>
+<body>
+
+<header>
+  <div>
+    <h1>🗺️ CARAMOAN, CAMARINES SUR</h1>
+    <p>Official Municipality Map · 2nd District · Camarines Sur · Philippines</p>
+  </div>
+  <span class="badge">49 Barangays</span>
+</header>
+
+<div id="map"></div>
+
+<div class="sidebar">
+  <h3>Barangay Directory</h3>
+  <input type="text" id="search-box" placeholder="🔍 Search barangay…"/>
+  <div id="brgy-list"></div>
+</div>
+
+<div class="legend">
+  <div class="legend-title">Zone Legend</div>
+  <div class="leg-row"><span class="dot" style="background:#f5c842"></span>Poblacion (3)</div>
+  <div class="leg-row"><span class="dot" style="background:#5bc0eb"></span>Northern / Coastal (12)</div>
+  <div class="leg-row"><span class="dot" style="background:#6dd47e"></span>Central / Inland (10)</div>
+  <div class="leg-row"><span class="dot" style="background:#f08030"></span>Southern (9)</div>
+  <div class="leg-row"><span class="dot" style="background:#cc66cc"></span>Eastern / Far (4)</div>
+  <div class="leg-row"><span class="dot" style="background:#ff7f7f"></span>Western (11)</div>
+</div>
+
+
+
+<script>
+const map=L.map('map',{zoomControl:true}).setView([13.82,123.84],11);
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{
+  attribution:'© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',maxZoom:18
+}).addTo(map);
+
+// All 49 official barangays with verified coordinates from Google Maps / PSA
+const brgys = [
+  // ── POBLACION ─────────────────────────────────────────────────────────────
+  {n:1,  name:"Binanuahan (Pob.)", lat:13.7723, lng:123.8610, zone:"Poblacion",          color:"#f5c842", zpale:"rgba(245,199,66,0.18)"},
+  {n:2,  name:"Ili-Centro (Pob.)", lat:13.7657, lng:123.8653, zone:"Poblacion",          color:"#f5c842", zpale:"rgba(245,199,66,0.18)"},
+  {n:3,  name:"Tawog (Pob.)",      lat:13.7798, lng:123.8760, zone:"Poblacion",          color:"#f5c842", zpale:"rgba(245,199,66,0.18)"},
+  // ── NORTHERN / COASTAL ────────────────────────────────────────────────────
+  {n:4,  name:"Agaas",             lat:13.8102, lng:123.8030, zone:"Northern / Coastal", color:"#5bc0eb", zpale:"rgba(91,192,235,0.18)"},
+  {n:5,  name:"Colongcogong",      lat:13.7255, lng:123.9679, zone:"Northern / Coastal", color:"#5bc0eb", zpale:"rgba(91,192,235,0.18)"},
+  {n:6,  name:"Daraga",            lat:13.9327, lng:123.8286, zone:"Northern / Coastal", color:"#5bc0eb", zpale:"rgba(91,192,235,0.18)"},
+  {n:7,  name:"Gata",              lat:13.9175, lng:123.8216, zone:"Northern / Coastal", color:"#5bc0eb", zpale:"rgba(91,192,235,0.18)"},
+  {n:8,  name:"Gibgos",            lat:13.8580, lng:123.7674, zone:"Northern / Coastal", color:"#5bc0eb", zpale:"rgba(91,192,235,0.18)"},
+  {n:9,  name:"Gogon",             lat:13.9441, lng:123.8298, zone:"Northern / Coastal", color:"#5bc0eb", zpale:"rgba(91,192,235,0.18)"},
+  {n:10, name:"Guijalo",           lat:13.7430, lng:123.8685, zone:"Northern / Coastal", color:"#5bc0eb", zpale:"rgba(91,192,235,0.18)"},
+  {n:11, name:"Haponan",           lat:13.8648, lng:123.8453, zone:"Northern / Coastal", color:"#5bc0eb", zpale:"rgba(91,192,235,0.18)"},
+  {n:12, name:"Lidong",            lat:13.8608, lng:123.7420, zone:"Northern / Coastal", color:"#5bc0eb", zpale:"rgba(91,192,235,0.18)"},
+  {n:13, name:"Paniman",           lat:13.8143, lng:123.8718, zone:"Northern / Coastal", color:"#5bc0eb", zpale:"rgba(91,192,235,0.18)"},
+  {n:14, name:"Tabgon",            lat:13.8300, lng:123.8127, zone:"Northern / Coastal", color:"#5bc0eb", zpale:"rgba(91,192,235,0.18)"},
+  {n:15, name:"Tabiguian",         lat:13.8334, lng:123.7984, zone:"Northern / Coastal", color:"#5bc0eb", zpale:"rgba(91,192,235,0.18)"},
+  // ── CENTRAL / INLAND ──────────────────────────────────────────────────────
+  {n:16, name:"Bahay",             lat:13.8091, lng:123.8095, zone:"Central / Inland",   color:"#6dd47e", zpale:"rgba(109,212,126,0.18)"},
+  {n:17, name:"Cadong",            lat:13.7844, lng:123.8383, zone:"Central / Inland",   color:"#6dd47e", zpale:"rgba(109,212,126,0.18)"},
+  {n:18, name:"Hanoy",             lat:13.7944, lng:123.8383, zone:"Central / Inland",   color:"#6dd47e", zpale:"rgba(109,212,126,0.18)"},
+  {n:19, name:"Ilawod",            lat:13.7954, lng:123.8801, zone:"Central / Inland",   color:"#6dd47e", zpale:"rgba(109,212,126,0.18)"},
+  {n:20, name:"Lubas",             lat:13.7709, lng:123.8512, zone:"Central / Inland",   color:"#6dd47e", zpale:"rgba(109,212,126,0.18)"},
+  {n:21, name:"Malabog",           lat:13.7818, lng:123.8110, zone:"Central / Inland",   color:"#6dd47e", zpale:"rgba(109,212,126,0.18)"},
+  {n:22, name:"Minalaba",          lat:13.8120, lng:123.8216, zone:"Central / Inland",   color:"#6dd47e", zpale:"rgba(109,212,126,0.18)"},
+  {n:23, name:"Oroc-Osoc",         lat:13.7968, lng:123.8551, zone:"Central / Inland",   color:"#6dd47e", zpale:"rgba(109,212,126,0.18)"},
+  {n:24, name:"Tabog",             lat:13.7961, lng:123.8272, zone:"Central / Inland",   color:"#6dd47e", zpale:"rgba(109,212,126,0.18)"},
+  {n:25, name:"Terogo",            lat:13.7901, lng:123.8662, zone:"Central / Inland",   color:"#6dd47e", zpale:"rgba(109,212,126,0.18)"},
+  // ── SOUTHERN ──────────────────────────────────────────────────────────────
+  {n:26, name:"Canatuan",          lat:13.7271, lng:123.8355, zone:"Southern",           color:"#f08030", zpale:"rgba(240,128,48,0.18)"},
+  {n:27, name:"Caputatan",         lat:13.7590, lng:123.8669, zone:"Southern",           color:"#f08030", zpale:"rgba(240,128,48,0.18)"},
+  {n:28, name:"Hanopol",           lat:13.7445, lng:123.8481, zone:"Southern",           color:"#f08030", zpale:"rgba(240,128,48,0.18)"},
+  {n:29, name:"Maligaya",          lat:13.8259, lng:123.7434, zone:"Southern",           color:"#f08030", zpale:"rgba(240,128,48,0.18)"},
+  {n:30, name:"Pagolinan",         lat:13.7266, lng:123.8551, zone:"Southern",           color:"#f08030", zpale:"rgba(240,128,48,0.18)"},
+  {n:31, name:"Pili-Centro",       lat:13.7653, lng:123.8516, zone:"Southern",           color:"#f08030", zpale:"rgba(240,128,48,0.18)"},
+  {n:32, name:"Salvacion",         lat:13.7499, lng:123.8662, zone:"Southern",           color:"#f08030", zpale:"rgba(240,128,48,0.18)"},
+  {n:33, name:"San Roque",         lat:13.7601, lng:123.8328, zone:"Southern",           color:"#f08030", zpale:"rgba(240,128,48,0.18)"},
+  {n:34, name:"Solnopan",          lat:13.7664, lng:123.8614, zone:"Southern",           color:"#f08030", zpale:"rgba(240,128,48,0.18)"},
+  // ── EASTERN / FAR ─────────────────────────────────────────────────────────
+  {n:35, name:"Cabacongan",        lat:13.7452, lng:123.9611, zone:"Eastern / Far",      color:"#cc66cc", zpale:"rgba(204,102,204,0.18)"},
+  {n:36, name:"Maqueda",           lat:13.7550, lng:123.9100, zone:"Eastern / Far",      color:"#cc66cc", zpale:"rgba(204,102,204,0.18)"},
+  {n:37, name:"Pandanan",          lat:13.7630, lng:123.9511, zone:"Eastern / Far",      color:"#cc66cc", zpale:"rgba(204,102,204,0.18)"},
+  {n:38, name:"San Vicente",       lat:13.7355, lng:123.9348, zone:"Eastern / Far",      color:"#cc66cc", zpale:"rgba(204,102,204,0.18)"},
+  // ── WESTERN ───────────────────────────────────────────────────────────────
+  {n:39, name:"Antolon",           lat:13.7939, lng:123.7599, zone:"Western",            color:"#ff7f7f", zpale:"rgba(255,127,127,0.18)"},
+  {n:40, name:"Bacgong",           lat:13.8090, lng:123.7695, zone:"Western",            color:"#ff7f7f", zpale:"rgba(255,127,127,0.18)"},
+  {n:41, name:"Bikal",             lat:13.8020, lng:123.8551, zone:"Western",            color:"#ff7f7f", zpale:"rgba(255,127,127,0.18)"},
+  {n:42, name:"Mampirao",          lat:13.8493, lng:123.7434, zone:"Western",            color:"#ff7f7f", zpale:"rgba(255,127,127,0.18)"},
+  {n:43, name:"Mandiclum",         lat:13.8254, lng:123.7264, zone:"Western",            color:"#ff7f7f", zpale:"rgba(255,127,127,0.18)"},
+  {n:44, name:"Oring",             lat:13.7960, lng:123.7797, zone:"Western",            color:"#ff7f7f", zpale:"rgba(255,127,127,0.18)"},
+  {n:45, name:"Patag-Belen",       lat:13.7781, lng:123.7848, zone:"Western",            color:"#ff7f7f", zpale:"rgba(255,127,127,0.18)"},
+  {n:46, name:"Pili-Tabiguian",    lat:13.8172, lng:123.7881, zone:"Western",            color:"#ff7f7f", zpale:"rgba(255,127,127,0.18)"},
+  {n:47, name:"Poloan",            lat:13.7959, lng:123.7797, zone:"Western",            color:"#ff7f7f", zpale:"rgba(255,127,127,0.18)"},
+  {n:48, name:"Santa Cruz",        lat:13.8208, lng:123.7702, zone:"Western",            color:"#ff7f7f", zpale:"rgba(255,127,127,0.18)"},
+  {n:49, name:"Toboan",            lat:13.8379, lng:123.7685, zone:"Western",            color:"#ff7f7f", zpale:"rgba(255,127,127,0.18)"},
+];
+
+function makeIcon(color, big){
+  const r=big?12:8, s=`<svg xmlns="http://www.w3.org/2000/svg" width="${r*2+4}" height="${r*2+4}">
+    <circle cx="${r+2}" cy="${r+2}" r="${r}" fill="${color}" stroke="#fff" stroke-width="1.8"/></svg>`;
+  return L.divIcon({html:s,className:'',iconSize:[r*2+4,r*2+4],iconAnchor:[r+2,r+2],popupAnchor:[0,-(r+5)]});
+}
+
+const markerRefs={};
+const zoneGroups={};
+
+brgys.forEach(b=>{
+  const isPob=b.zone==="Poblacion";
+  const m=L.marker([b.lat,b.lng],{icon:makeIcon(b.color,isPob)}).addTo(map)
+    .bindPopup(`<div class="popup-num">Barangay · #${b.n} of 49</div>
+      <div class="popup-title">${b.name}</div>
+      <span class="popup-zone" style="background:${b.zpale};color:${b.color};border:1px solid ${b.color}">${b.zone}</span>`);
+  markerRefs[b.n]={marker:m,data:b};
+  if(!zoneGroups[b.zone])zoneGroups[b.zone]=[];
+  zoneGroups[b.zone].push(b);
+});
+
+const zoneOrder=["Poblacion","Northern / Coastal","Central / Inland","Southern","Eastern / Far","Western"];
+const listDiv=document.getElementById('brgy-list');
+const allLis=[];
+
+zoneOrder.forEach(z=>{
+  if(!zoneGroups[z])return;
+  const lbl=document.createElement('div');
+  lbl.className='zone-label';
+  lbl.textContent=`${z} (${zoneGroups[z].length})`;
+  lbl.dataset.zone=z;
+  listDiv.appendChild(lbl);
+  const ul=document.createElement('ul');
+  zoneGroups[z].forEach(b=>{
+    const li=document.createElement('li');
+    li.textContent=`${b.n}. ${b.name}`;
+    if(b.zone==="Poblacion")li.classList.add('pob');
+    li.dataset.n=b.n;
+    li.dataset.name=b.name.toLowerCase();
+    li.dataset.zone=b.zone;
+    li.addEventListener('click',()=>{
+      map.setView([b.lat,b.lng],15,{animate:true});
+      markerRefs[b.n].marker.openPopup();
+    });
+    ul.appendChild(li);
+    allLis.push(li);
+  });
+  listDiv.appendChild(ul);
+});
+
+document.getElementById('search-box').addEventListener('input',function(){
+  const q=this.value.toLowerCase().trim();
+  const zoneHasVisible={};
+  allLis.forEach(li=>{
+    const show=!q||li.dataset.name.includes(q);
+    li.style.display=show?'':'none';
+    if(show)zoneHasVisible[li.dataset.zone]=true;
+  });
+  document.querySelectorAll('.zone-label').forEach(lbl=>{
+    lbl.style.display=(!q||zoneHasVisible[lbl.dataset.zone])?'':'none';
+  });
+});
+
+// Fit to all markers
+const grp=L.featureGroup(Object.values(markerRefs).map(m=>m.marker));
+map.fitBounds(grp.getBounds().pad(0.06));
+
+// ── Adjacency lines between neighboring barangays ─────────────────────────
+const ADJ={
+  "Agaas":            ["Bahay","Tabgon","Tabiguian","Minalaba"],
+  "Antolon":          ["Bikal","Oring","Patag-Belen","Mandiclum","Malabog"],
+  "Bacgong":          ["Toboan","Santa Cruz","Pili-Tabiguian","Agaas","Lidong"],
+  "Bahay":            ["Agaas","Tabgon","Minalaba","Cadong","Hanoy","Malabog"],
+  "Bikal":            ["Antolon","Oring","Patag-Belen"],
+  "Binanuahan (Pob.)":["Lubas","Cadong","Ili-Centro (Pob.)","Malabog","San Roque"],
+  "Cabacongan":       ["San Vicente","Pandanan","Colongcogong"],
+  "Cadong":           ["Hanoy","Bahay","Binanuahan (Pob.)","Ili-Centro (Pob.)","Tabog","Malabog"],
+  "Canatuan":         ["Hanopol","San Roque","Malabog","Tabog"],
+  "Caputatan":        ["Salvacion","San Roque","Solnopan","Lubas","Ili-Centro (Pob.)"],
+  "Colongcogong":     ["Cabacongan","San Vicente","Pandanan","Pagolinan","Maqueda"],
+  "Daraga":           ["Gogon","Haponan","Gata"],
+  "Gata":             ["Daraga","Gogon","Haponan","Paniman"],
+  "Gibgos":           ["Lidong","Maligaya","Mampirao","Toboan"],
+  "Gogon":            ["Daraga","Gata","Haponan"],
+  "Guijalo":          ["Paniman","Tawog (Pob.)","Ilawod","Terogo"],
+  "Hanopol":          ["Canatuan","San Roque","Malabog","Salvacion","Pili-Centro","Pagolinan","Hanoy","Tabog"],
+  "Hanoy":            ["Cadong","Bahay","Malabog","Hanopol","Tabog"],
+  "Haponan":          ["Gogon","Gata","Paniman","Daraga"],
+  "Ilawod":           ["Guijalo","Tawog (Pob.)","Terogo","Oroc-Osoc","Paniman"],
+  "Ili-Centro (Pob.)":["Binanuahan (Pob.)","Cadong","Caputatan","Lubas","Solnopan","Tawog (Pob.)"],
+  "Lidong":           ["Gibgos","Maligaya","Mampirao","Bacgong","Santa Cruz"],
+  "Lubas":            ["Binanuahan (Pob.)","Ili-Centro (Pob.)","Caputatan","Salvacion"],
+  "Malabog":          ["Antolon","Cadong","Bahay","Hanoy","Hanopol","Canatuan","San Roque","Binanuahan (Pob.)","Tabog"],
+  "Maligaya":         ["Lidong","Gibgos","Mampirao"],
+  "Mampirao":         ["Lidong","Gibgos","Maligaya","Toboan","Santa Cruz"],
+  "Mandiclum":        ["Antolon","Patag-Belen","Pili-Tabiguian","Santa Cruz"],
+  "Maqueda":          ["Colongcogong","Pandanan","San Vicente"],
+  "Minalaba":         ["Agaas","Tabgon","Bahay","Tabiguian"],
+  "Oring":            ["Antolon","Bikal","Patag-Belen","Poloan"],
+  "Oroc-Osoc":        ["Ilawod","Tawog (Pob.)","Terogo"],
+  "Pagolinan":        ["Hanopol","Pili-Centro","Colongcogong","San Vicente","Pandanan"],
+  "Pandanan":         ["Colongcogong","Cabacongan","San Vicente","Maqueda","Pagolinan"],
+  "Paniman":          ["Guijalo","Ilawod","Haponan","Gata","Tawog (Pob.)"],
+  "Patag-Belen":      ["Antolon","Bikal","Oring","Poloan","Mandiclum"],
+  "Pili-Centro":      ["Hanopol","Salvacion","Caputatan","Pagolinan","San Roque"],
+  "Pili-Tabiguian":   ["Bacgong","Tabiguian","Agaas","Minalaba","Mandiclum","Santa Cruz"],
+  "Poloan":           ["Oring","Patag-Belen"],
+  "Salvacion":        ["San Roque","Caputatan","Lubas","Pili-Centro","Hanopol"],
+  "San Roque":        ["Solnopan","Caputatan","Salvacion","Malabog","Pili-Centro","Hanopol"],
+  "San Vicente":      ["Colongcogong","Cabacongan","Pandanan","Maqueda","Pagolinan"],
+  "Santa Cruz":       ["Bacgong","Lidong","Mampirao","Toboan","Mandiclum","Pili-Tabiguian"],
+  "Solnopan":         ["San Roque","Caputatan","Ili-Centro (Pob.)","Tawog (Pob.)"],
+  "Tabgon":           ["Agaas","Bahay","Minalaba","Tabiguian","Pili-Tabiguian"],
+  "Tabiguian":        ["Tabgon","Minalaba","Agaas","Pili-Tabiguian"],
+  "Tabog":            ["Cadong","Hanoy","Malabog","Hanopol","Canatuan"],
+  "Tawog (Pob.)":     ["Guijalo","Ilawod","Oroc-Osoc","Paniman","Solnopan","Ili-Centro (Pob.)","Terogo"],
+  "Terogo":           ["Guijalo","Ilawod","Oroc-Osoc","Tawog (Pob.)"],
+  "Toboan":           ["Bacgong","Gibgos","Mampirao","Santa Cruz","Lidong"],
+};
+
+const byName={};
+brgys.forEach(b=>byName[b.name]=b);
+
+function haversineKm(a,b){
+  const R=6371,dLat=(b.lat-a.lat)*Math.PI/180,dLng=(b.lng-a.lng)*Math.PI/180;
+  const v=Math.sin(dLat/2)**2+Math.cos(a.lat*Math.PI/180)*Math.cos(b.lat*Math.PI/180)*Math.sin(dLng/2)**2;
+  return (R*2*Math.asin(Math.sqrt(v))).toFixed(2);
+}
+
+const drawn=new Set();
+const adjLines=[];
+
+Object.entries(ADJ).forEach(([fromName,neighbors])=>{
+  const a=byName[fromName];
+  if(!a)return;
+  neighbors.forEach(toName=>{
+    const b=byName[toName];
+    if(!b)return;
+    const key=[fromName,toName].sort().join('||');
+    if(drawn.has(key))return;
+    drawn.add(key);
+    const km=haversineKm(a,b);
+    const line=L.polyline([[a.lat,a.lng],[b.lat,b.lng]],{
+      color:'#7ec8e3',weight:1.8,opacity:0.55,dashArray:'5 6'
+    });
+    line.bindTooltip(`<b>${fromName}</b> ↔ <b>${toName}</b><br>~${km} km (straight-line)`,{
+      sticky:true,className:'adj-tip',direction:'top'
+    });
+    line.addTo(map);
+    adjLines.push(line);
+  });
+});
+
+// Toggle control
+const LinesToggle=L.Control.extend({
+  onAdd:function(){
+    const btn=L.DomUtil.create('button');
+    btn.innerHTML='🔗 Lines: ON';
+    btn.style.cssText='background:#0d2137;color:#7ec8e3;border:1px solid #2e6da4;padding:5px 11px;border-radius:6px;cursor:pointer;font-size:0.72rem;font-weight:700;letter-spacing:0.5px;margin-top:4px;display:block';
+    let on=true;
+    L.DomEvent.on(btn,'click',function(e){
+      L.DomEvent.stopPropagation(e);
+      on=!on;
+      adjLines.forEach(l=>on?l.addTo(map):map.removeLayer(l));
+      btn.innerHTML=`🔗 Lines: ${on?'ON':'OFF'}`;
+      btn.style.color=on?'#7ec8e3':'#4a6a7a';
+      btn.style.borderColor=on?'#2e6da4':'#1a3a4a';
+    });
+    return btn;
+  }
+});
+new LinesToggle({position:'topleft'}).addTo(map);
+</script>
+
+<style>
+.adj-tip{background:#0d2137!important;color:#c8dce8!important;border:1px solid #2e6da4!important;border-radius:6px!important;font-size:0.74rem!important;padding:4px 9px!important;box-shadow:0 2px 10px rgba(0,0,0,0.5)!important;pointer-events:none!important}
+.adj-tip::before,.adj-tip::after{display:none!important}
+</style>
+</body>
+</html>
