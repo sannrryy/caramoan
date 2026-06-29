@@ -1,320 +1,1634 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="light">
+
 <head>
-  <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Caramoan – Official 49 Barangays Map</title>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css"/>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
-  <style>
-    *{margin:0;padding:0;box-sizing:border-box}
-    body{font-family:'Segoe UI',Arial,sans-serif;background:#0d1b2a;color:#fff;height:100vh;display:flex;flex-direction:column}
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SPX Express - Caramoan Barangay Map</title>
 
-    header{background:linear-gradient(135deg,#1a3a5c,#0d2137);padding:11px 18px;display:flex;align-items:center;justify-content:space-between;border-bottom:2px solid #2e6da4;flex-shrink:0}
-    header h1{font-size:1.15rem;font-weight:700;color:#7ec8e3;letter-spacing:1px}
-    header p{font-size:0.73rem;color:#a0bfcc;margin-top:2px}
-    .badge{background:#2e6da4;color:#fff;font-size:0.74rem;padding:4px 12px;border-radius:20px;font-weight:700;white-space:nowrap;margin-left:12px}
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap"
+        rel="stylesheet">
 
-    #map{flex:1;width:100%}
+    <!-- Leaflet Map CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+        integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
 
-    .sidebar{position:absolute;top:72px;right:10px;z-index:1000;background:rgba(13,27,42,0.94);border:1px solid #2e6da4;border-radius:10px;padding:10px 12px;max-height:calc(100vh - 86px);overflow-y:auto;width:205px;backdrop-filter:blur(6px)}
-    .sidebar h3{font-size:0.7rem;text-transform:uppercase;letter-spacing:1px;color:#7ec8e3;margin-bottom:6px;border-bottom:1px solid #2e6da4;padding-bottom:4px}
-    #search-box{width:100%;background:#0d2137;border:1px solid #2e6da4;color:#c8dce8;padding:5px 7px;border-radius:5px;font-size:0.72rem;margin-bottom:7px;outline:none}
-    #search-box::placeholder{color:#4a6a7a}
-    .zone-label{font-size:0.63rem;text-transform:uppercase;letter-spacing:1px;color:#f5c842;margin:8px 0 3px;font-weight:700;padding-left:3px}
-    .sidebar ul{list-style:none}
-    .sidebar ul li{font-size:0.72rem;padding:2px 5px;color:#c8dce8;cursor:pointer;border-radius:4px;transition:background 0.15s;line-height:1.4}
-    .sidebar ul li:hover{background:#1a3a5c;color:#7ec8e3}
-    .sidebar ul li.pob{color:#f5c842;font-weight:600}
-    .sidebar::-webkit-scrollbar{width:4px}
-    .sidebar::-webkit-scrollbar-thumb{background:#2e6da4;border-radius:4px}
+    <!-- FontAwesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
-    .legend{position:absolute;bottom:26px;left:10px;z-index:1000;background:rgba(13,27,42,0.9);border:1px solid #2e6da4;border-radius:8px;padding:9px 13px;font-size:0.69rem;color:#a0bfcc}
-    .legend-title{font-size:0.67rem;text-transform:uppercase;letter-spacing:1px;color:#7ec8e3;margin-bottom:5px;font-weight:700}
-    .leg-row{display:flex;align-items:center;gap:7px;margin-bottom:3px}
-    .dot{width:11px;height:11px;border-radius:50%;flex-shrink:0;border:1.5px solid rgba(255,255,255,0.35)}
+    <style>
+        :root {
+            --spx-orange: #ff5722;
+            --spx-orange-hover: #e64a19;
+            --spx-orange-light: #ffebe5;
+            --spx-blue: #002f6c;
+            --spx-blue-dark: #001f4d;
 
-    .leaflet-popup-content-wrapper{background:#0d2137;color:#c8dce8;border:1px solid #2e6da4;border-radius:8px;box-shadow:0 4px 20px rgba(0,0,0,0.5)}
-    .leaflet-popup-tip{background:#0d2137}
-    .leaflet-popup-content{font-size:0.82rem;margin:10px 14px}
-    .popup-num{font-size:0.62rem;color:#5bc0eb;letter-spacing:1px;text-transform:uppercase}
-    .popup-title{font-size:1rem;font-weight:700;color:#fff;margin:2px 0 3px}
-    .popup-zone{display:inline-block;font-size:0.67rem;padding:2px 8px;border-radius:10px;margin-bottom:2px;font-weight:600}
+            /* Light Theme Variables */
+            --bg-primary: #f4f6f9;
+            --bg-secondary: #ffffff;
+            --bg-card: #ffffff;
+            --border-color: #e2e8f0;
+            --text-primary: #0f172a;
+            --text-secondary: #475569;
+            --text-muted: #94a3b8;
+            --glass-bg: rgba(255, 255, 255, 0.8);
+            --glass-border: rgba(226, 232, 240, 0.8);
+            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1);
+
+            /* Status Colors */
+            --status-normal: #10b981;
+            --status-normal-bg: #ecfdf5;
+            --status-delayed: #f59e0b;
+            --status-delayed-bg: #fffbeb;
+            --status-suspended: #ef4444;
+            --status-suspended-bg: #fef2f2;
+            --status-completed: #3b82f6;
+            --status-completed-bg: #eff6ff;
+
+            /* Map styles */
+            --map-invert: 0;
+            --map-hue: 0deg;
+            --map-sat: 100%;
+            --map-bright: 100%;
+        }
+
+        [data-theme="dark"] {
+            --bg-primary: #0b0f19;
+            --bg-secondary: #111827;
+            --bg-card: #1f2937;
+            --border-color: #374151;
+            --text-primary: #f9fafb;
+            --text-secondary: #d1d5db;
+            --text-muted: #6b7280;
+            --glass-bg: rgba(17, 24, 39, 0.8);
+            --glass-border: rgba(55, 65, 81, 0.8);
+            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.5);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.5), 0 2px 4px -2px rgba(0, 0, 0, 0.5);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.5), 0 4px 6px -4px rgba(0, 0, 0, 0.5);
+
+            --status-normal-bg: rgba(16, 185, 129, 0.1);
+            --status-delayed-bg: rgba(245, 158, 11, 0.1);
+            --status-suspended-bg: rgba(239, 68, 68, 0.1);
+            --status-completed-bg: rgba(59, 130, 246, 0.1);
+
+            /* Custom Dark Tiles filter values */
+            --map-invert: 1;
+            --map-hue: 180deg;
+            --map-sat: 80%;
+            --map-bright: 90%;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Plus Jakarta Sans', 'Outfit', sans-serif;
+            transition: background-color 0.3s ease, border-color 0.3s ease;
+        }
+
+        body {
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            height: 100vh;
+            display: flex;
+            overflow: hidden;
+        }
+
+        /* Layout Structure */
+        .app-container {
+            display: flex;
+            width: 100%;
+            height: 100vh;
+            position: relative;
+        }
+
+        /* Sidebar Styling */
+        .sidebar {
+            width: 420px;
+            background-color: var(--bg-secondary);
+            border-right: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            z-index: 10;
+            box-shadow: var(--shadow-lg);
+            flex-shrink: 0;
+        }
+
+        /* Header */
+        .sidebar-header {
+            padding: 20px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .brand-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .brand-icon {
+            background-color: var(--spx-orange);
+            color: white;
+            padding: 8px 12px;
+            border-radius: 8px;
+            font-weight: 800;
+            font-size: 1.2rem;
+            letter-spacing: 0.5px;
+            box-shadow: 0 4px 10px rgba(255, 87, 34, 0.3);
+        }
+
+        .brand-text {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .brand-title {
+            font-weight: 800;
+            font-size: 1.1rem;
+            color: var(--spx-blue);
+            letter-spacing: -0.5px;
+            line-height: 1;
+        }
+
+        [data-theme="dark"] .brand-title {
+            color: white;
+        }
+
+        .brand-subtitle {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-top: 2px;
+        }
+
+        .theme-toggle {
+            background: none;
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
+            cursor: pointer;
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+            transition: all 0.2s ease;
+        }
+
+        .theme-toggle:hover {
+            background-color: var(--border-color);
+            transform: scale(1.05);
+        }
+
+        /* Search and Filter Panel */
+        .search-wrapper {
+            position: relative;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 12px 16px 12px 42px;
+            border-radius: 10px;
+            border: 1.5px solid var(--border-color);
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            font-size: 0.9rem;
+            font-weight: 500;
+            outline: none;
+            transition: all 0.2s ease;
+        }
+
+        .search-input:focus {
+            border-color: var(--spx-orange);
+            box-shadow: 0 0 0 3px var(--spx-orange-light);
+            background-color: var(--bg-secondary);
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-muted);
+            pointer-events: none;
+        }
+
+        .filter-container {
+            display: flex;
+            gap: 8px;
+            overflow-x: auto;
+            padding-bottom: 5px;
+            scrollbar-width: none;
+        }
+
+        .filter-container::-webkit-scrollbar {
+            display: none;
+        }
+
+        .filter-chip {
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            cursor: pointer;
+            border: 1.5px solid var(--border-color);
+            background-color: var(--bg-secondary);
+            color: var(--text-secondary);
+            white-space: nowrap;
+            transition: all 0.2s ease;
+        }
+
+        .filter-chip.active {
+            background-color: var(--spx-orange);
+            color: white;
+            border-color: var(--spx-orange);
+            box-shadow: 0 3px 8px rgba(255, 87, 34, 0.25);
+        }
+
+        .filter-chip:hover:not(.active) {
+            background-color: var(--bg-primary);
+            border-color: var(--text-muted);
+        }
+
+        /* Stats Section */
+        .stats-section {
+            padding: 15px 20px;
+            border-bottom: 1px solid var(--border-color);
+            background-color: var(--bg-primary);
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+        }
+
+        .stat-card {
+            background-color: var(--bg-secondary);
+            padding: 12px 10px;
+            border-radius: 10px;
+            text-align: center;
+            border: 1px solid var(--border-color);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .stat-val {
+            font-size: 1.2rem;
+            font-weight: 800;
+            color: var(--text-primary);
+        }
+
+        .stat-lbl {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-top: 2px;
+        }
+
+        /* Barangay List */
+        .barangay-list-container {
+            flex-grow: 1;
+            overflow-y: auto;
+            padding: 10px 15px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .barangay-item {
+            background-color: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            padding: 12px 14px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            transition: all 0.2s ease;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .barangay-item:hover {
+            border-color: var(--spx-orange);
+            transform: translateX(2px);
+            background-color: var(--spx-orange-light);
+        }
+
+        [data-theme="dark"] .barangay-item:hover {
+            background-color: rgba(255, 87, 34, 0.1);
+        }
+
+        .barangay-item.active-selected {
+            border-color: var(--spx-blue);
+            background-color: var(--spx-orange-light);
+            box-shadow: 0 0 0 2px rgba(255, 87, 34, 0.2);
+        }
+
+        [data-theme="dark"] .barangay-item.active-selected {
+            border-color: var(--spx-orange);
+            background-color: rgba(255, 87, 34, 0.15);
+        }
+
+        .item-left {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .item-number {
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: var(--text-muted);
+            min-width: 20px;
+        }
+
+        .item-status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            display: inline-block;
+        }
+
+        .item-name {
+            font-weight: 700;
+            font-size: 0.9rem;
+            color: var(--text-primary);
+        }
+
+        .item-right {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .item-type-badge {
+            font-size: 0.65rem;
+            font-weight: 700;
+            padding: 2px 6px;
+            border-radius: 4px;
+            text-transform: uppercase;
+        }
+
+        .item-type-badge.mainland {
+            background-color: #f1f5f9;
+            color: #475569;
+            border: 1px solid #cbd5e1;
+        }
+
+        [data-theme="dark"] .item-type-badge.mainland {
+            background-color: #1e293b;
+            color: #94a3b8;
+            border: 1px solid #334155;
+        }
+
+        .item-type-badge.island {
+            background-color: #eff6ff;
+            color: #2563eb;
+            border: 1px solid #bfdbfe;
+        }
+
+        [data-theme="dark"] .item-type-badge.island {
+            background-color: rgba(37, 99, 235, 0.15);
+            color: #60a5fa;
+            border: 1px solid rgba(96, 165, 250, 0.3);
+        }
+
+        .item-parcels-badge {
+            font-size: 0.7rem;
+            font-weight: 700;
+            background-color: var(--spx-orange-light);
+            color: var(--spx-orange);
+            padding: 2px 6px;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            gap: 3px;
+        }
+
+        [data-theme="dark"] .item-parcels-badge {
+            background-color: rgba(255, 87, 34, 0.15);
+        }
+
+        /* Action Footer */
+        .sidebar-footer {
+            padding: 15px 20px;
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            gap: 10px;
+            background-color: var(--bg-secondary);
+        }
+
+        .btn {
+            padding: 10px 14px;
+            border-radius: 8px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            cursor: pointer;
+            border: 1px solid var(--border-color);
+            background-color: var(--bg-secondary);
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            flex-grow: 1;
+            transition: all 0.2s ease;
+        }
+
+        .btn:hover {
+            background-color: var(--bg-primary);
+            border-color: var(--text-secondary);
+        }
+
+        .btn-primary {
+            background-color: var(--spx-orange);
+            color: white;
+            border-color: var(--spx-orange);
+            box-shadow: 0 4px 10px rgba(255, 87, 34, 0.2);
+        }
+
+        .btn-primary:hover {
+            background-color: var(--spx-orange-hover);
+            border-color: var(--spx-orange-hover);
+            transform: translateY(-1px);
+        }
+
+        /* Map Container */
+        .map-container {
+            flex-grow: 1;
+            height: 100%;
+            position: relative;
+        }
+
+        #map {
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+        }
+
+        /* Leaflet Dark Mode Tiles filter */
+        [data-theme="dark"] .leaflet-tile-container {
+            filter: invert(var(--map-invert)) hue-rotate(var(--map-hue)) saturate(var(--map-sat)) brightness(var(--map-bright));
+        }
+
+        /* Floating Controls on Map */
+        .map-overlay-controls {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .map-btn {
+            background-color: var(--bg-secondary);
+            color: var(--text-primary);
+            border: 1px solid var(--border-color);
+            width: 44px;
+            height: 44px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 1.1rem;
+            box-shadow: var(--shadow-md);
+            transition: all 0.2s ease;
+        }
+
+        .map-btn:hover {
+            transform: scale(1.05);
+            background-color: var(--bg-primary);
+            color: var(--spx-orange);
+        }
+
+        .map-btn.active {
+            background-color: var(--spx-orange) !important;
+            color: white !important;
+            border-color: var(--spx-orange) !important;
+        }
+
+        .line-tooltip {
+            background-color: var(--bg-secondary) !important;
+            color: var(--text-primary) !important;
+            border: 1px solid var(--border-color) !important;
+            font-family: 'Outfit', sans-serif !important;
+            font-size: 0.75rem !important;
+            font-weight: 600 !important;
+            border-radius: 6px !important;
+            box-shadow: var(--shadow-sm) !important;
+            padding: 4px 8px !important;
+            opacity: 0.95 !important;
+        }
+
+        /* Proximity Connections List Items */
+        .proximity-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 14px;
+            margin-bottom: 8px;
+            background-color: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .proximity-item:hover {
+            border-color: var(--spx-orange);
+            background-color: var(--bg-primary);
+            transform: translateX(2px);
+        }
+
+        .proximity-item.active-selected {
+            border-color: var(--spx-orange);
+            background-color: var(--spx-orange-light);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .proximity-names {
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .proximity-names i {
+            color: var(--text-muted);
+            font-size: 0.75rem;
+        }
+
+        .proximity-details {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            font-weight: 600;
+            margin-top: 4px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .fallback-tag {
+            background-color: rgba(255, 87, 34, 0.1);
+            color: var(--spx-orange);
+            padding: 1px 6px;
+            border-radius: 4px;
+            font-size: 0.6rem;
+            text-transform: uppercase;
+            font-weight: 700;
+        }
+
+        .proximity-distance {
+            font-size: 0.85rem;
+            font-weight: 800;
+            color: var(--spx-orange);
+            background-color: var(--spx-orange-light);
+            padding: 4px 8px;
+            border-radius: 6px;
+        }
+
+        /* Marker Styling */
+        .custom-div-icon {
+            background: none;
+            border: none;
+        }
+
+        .marker-pin {
+            width: 32px;
+            height: 32px;
+            border-radius: 50% 50% 50% 0;
+            position: absolute;
+            transform: rotate(-45deg);
+            left: 50%;
+            top: 50%;
+            margin: -16px 0 0 -16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+            border: 2px solid white;
+            transition: all 0.3s ease;
+        }
+
+        .marker-pin::after {
+            content: '';
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background-color: white;
+            position: absolute;
+        }
+
+        .marker-pin.active-highlight {
+            transform: rotate(-45deg) scale(1.25) !important;
+            box-shadow: 0 0 15px var(--spx-orange);
+            border-color: var(--spx-blue) !important;
+        }
+
+        .marker-label {
+            position: absolute;
+            background-color: var(--bg-secondary);
+            color: var(--text-primary);
+            font-size: 0.7rem;
+            font-weight: 700;
+            padding: 2px 6px;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            white-space: nowrap;
+            bottom: -22px;
+            left: 50%;
+            transform: translateX(-50%);
+            box-shadow: var(--shadow-sm);
+            pointer-events: none;
+        }
 
 
-  </style>
+
+        /* Popup Custom Styling */
+        .leaflet-popup-content-wrapper {
+            background-color: var(--bg-secondary) !important;
+            color: var(--text-primary) !important;
+            border-radius: 12px !important;
+            border: 1px solid var(--border-color);
+            box-shadow: var(--shadow-lg) !important;
+            padding: 0 !important;
+            overflow: hidden;
+        }
+
+        .leaflet-popup-content {
+            margin: 0 !important;
+            width: 280px !important;
+        }
+
+        .popup-header {
+            background-color: var(--spx-blue);
+            color: white;
+            padding: 12px 15px;
+            font-weight: 700;
+            font-size: 0.95rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        [data-theme="dark"] .popup-header {
+            background-color: #1f2937;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .popup-body {
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            font-size: 0.8rem;
+        }
+
+        .popup-row {
+            display: flex;
+            justify-content: space-between;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 6px;
+        }
+
+        .popup-row:last-child {
+            border-bottom: none;
+            padding-bottom: 0;
+        }
+
+        .popup-lbl {
+            font-weight: 600;
+            color: var(--text-secondary);
+        }
+
+        .popup-val {
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .popup-notes {
+            background-color: var(--bg-primary);
+            padding: 8px;
+            border-radius: 6px;
+            font-style: italic;
+            color: var(--text-secondary);
+            margin-top: 4px;
+            max-height: 60px;
+            overflow-y: auto;
+        }
+
+        .popup-actions {
+            display: flex;
+            gap: 8px;
+            padding: 0 15px 15px 15px;
+        }
+
+        .popup-btn {
+            flex-grow: 1;
+            padding: 6px;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            cursor: pointer;
+            border: 1px solid var(--spx-orange);
+            background-color: white;
+            color: var(--spx-orange);
+            text-align: center;
+            transition: all 0.2s ease;
+        }
+
+        [data-theme="dark"] .popup-btn {
+            background-color: var(--bg-card);
+        }
+
+        .popup-btn.primary {
+            background-color: var(--spx-orange);
+            color: white;
+        }
+
+        .popup-btn:hover {
+            transform: translateY(-1px);
+            opacity: 0.9;
+        }
+
+        .leaflet-popup-tip {
+            background: var(--bg-secondary) !important;
+            border: 1px solid var(--border-color);
+        }
+
+        /* Legend panel */
+        .map-legend {
+            background-color: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            padding: 12px 15px;
+            border-radius: 12px;
+            bottom: 20px;
+            right: 20px;
+            position: absolute;
+            z-index: 1000;
+            box-shadow: var(--shadow-lg);
+            backdrop-filter: blur(8px);
+            font-size: 0.75rem;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            width: 180px;
+        }
+
+        .legend-title {
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 2px;
+            color: var(--text-primary);
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+
+        .legend-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            display: inline-block;
+            border: 1.5px solid white;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+        }
+
+        /* Responsive Design */
+        @media (max-width: 900px) {
+            .sidebar {
+                width: 340px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .app-container {
+                flex-direction: column-reverse;
+            }
+
+            .sidebar {
+                width: 100%;
+                height: 50vh;
+                border-right: none;
+                border-top: 1px solid var(--border-color);
+            }
+
+            .map-container {
+                height: 50vh;
+            }
+
+            .map-legend {
+                bottom: auto;
+                top: 20px;
+                right: 20px;
+            }
+        }
+    </style>
 </head>
+
 <body>
 
-<header>
-  <div>
-    <h1>🗺️ CARAMOAN, CAMARINES SUR</h1>
-    <p>Official Municipality Map · 2nd District · Camarines Sur · Philippines</p>
-  </div>
-  <span class="badge">49 Barangays</span>
-</header>
+    <div class="app-container">
 
-<div id="map"></div>
+        <!-- SIDEBAR DASHBOARD -->
+        <aside class="sidebar">
 
-<div class="sidebar">
-  <h3>Barangay Directory</h3>
-  <input type="text" id="search-box" placeholder="🔍 Search barangay…"/>
-  <div id="brgy-list"></div>
-</div>
+            <!-- Header & Search -->
+            <div class="sidebar-header">
+                <div class="brand-container">
+                    <div class="brand">
+                        <span class="brand-icon">SPX</span>
+                        <div class="brand-text">
+                            <span class="brand-title">Express</span>
+                            <span class="brand-subtitle">Caramoan Hub Map</span>
+                        </div>
+                    </div>
+                    <button class="theme-toggle" id="themeToggleBtn" title="Toggle Light/Dark Mode">
+                        <i class="fa-solid fa-moon"></i>
+                    </button>
+                </div>
 
-<div class="legend">
-  <div class="legend-title">Zone Legend</div>
-  <div class="leg-row"><span class="dot" style="background:#f5c842"></span>Poblacion (3)</div>
-  <div class="leg-row"><span class="dot" style="background:#5bc0eb"></span>Northern / Coastal (12)</div>
-  <div class="leg-row"><span class="dot" style="background:#6dd47e"></span>Central / Inland (10)</div>
-  <div class="leg-row"><span class="dot" style="background:#f08030"></span>Southern (9)</div>
-  <div class="leg-row"><span class="dot" style="background:#cc66cc"></span>Eastern / Far (4)</div>
-  <div class="leg-row"><span class="dot" style="background:#ff7f7f"></span>Western (11)</div>
-</div>
+                <div class="search-wrapper">
+                    <i class="fa-solid fa-magnifying-glass search-icon"></i>
+                    <input type="text" class="search-input" id="searchInput"
+                        placeholder="Maghanap ng Barangay (e.g. Tawog)...">
+                </div>
+
+            </div>
+
+            <!-- Stats Bar -->
+            <div class="stats-section">
+                <div class="stats-grid" style="grid-template-columns: 1fr;">
+                    <div class="stat-card">
+                        <div class="stat-val" id="statTotalBrgy" style="font-size: 1.8rem; color: var(--spx-orange);">49
+                        </div>
+                        <div class="stat-lbl" id="statLabelText" style="letter-spacing: 1px;">TOTAL ACTIVE BARANGAYS
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tab Navigation -->
+            <div class="sidebar-tabs"
+                style="display: flex; border-bottom: 1px solid var(--border-color); background-color: var(--bg-secondary);">
+                <button class="tab-btn" id="tabBrgyList"
+                    style="flex: 1; padding: 12px; border: none; background: none; font-weight: 700; font-size: 0.8rem; color: var(--spx-orange); border-bottom: 2px solid var(--spx-orange); cursor: pointer; transition: all 0.2s ease;">
+                    <i class="fa-solid fa-list" style="margin-right: 6px;"></i> BARANGAYS
+                </button>
+                <button class="tab-btn" id="tabProximityList"
+                    style="flex: 1; padding: 12px; border: none; background: none; font-weight: 600; font-size: 0.8rem; color: var(--text-muted); border-bottom: 2px solid transparent; cursor: pointer; transition: all 0.2s ease;">
+                    <i class="fa-solid fa-circle-nodes" style="margin-right: 6px;"></i> PROXIMITY LIST
+                </button>
+            </div>
+
+            <!-- Scrollable List Containers -->
+            <div class="barangay-list-container" style="flex-grow: 1; overflow-y: auto; padding: 10px 15px;">
+                <!-- Tab 1: Barangay list -->
+                <div id="barangayList"></div>
+                <!-- Tab 2: Proximity connections list -->
+                <div id="proximityList" style="display: none;"></div>
+            </div>
 
 
 
-<script>
-const map=L.map('map',{zoomControl:true}).setView([13.82,123.84],11);
-L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{
-  attribution:'© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',maxZoom:18
-}).addTo(map);
+        </aside>
 
-// All 49 official barangays with verified coordinates from Google Maps / PSA
-const brgys = [
-  // ── POBLACION ─────────────────────────────────────────────────────────────
-  {n:1,  name:"Binanuahan (Pob.)", lat:13.7723, lng:123.8610, zone:"Poblacion",          color:"#f5c842", zpale:"rgba(245,199,66,0.18)"},
-  {n:2,  name:"Ili-Centro (Pob.)", lat:13.7657, lng:123.8653, zone:"Poblacion",          color:"#f5c842", zpale:"rgba(245,199,66,0.18)"},
-  {n:3,  name:"Tawog (Pob.)",      lat:13.7798, lng:123.8760, zone:"Poblacion",          color:"#f5c842", zpale:"rgba(245,199,66,0.18)"},
-  // ── NORTHERN / COASTAL ────────────────────────────────────────────────────
-  {n:4,  name:"Agaas",             lat:13.8102, lng:123.8030, zone:"Northern / Coastal", color:"#5bc0eb", zpale:"rgba(91,192,235,0.18)"},
-  {n:5,  name:"Colongcogong",      lat:13.7255, lng:123.9679, zone:"Northern / Coastal", color:"#5bc0eb", zpale:"rgba(91,192,235,0.18)"},
-  {n:6,  name:"Daraga",            lat:13.9327, lng:123.8286, zone:"Northern / Coastal", color:"#5bc0eb", zpale:"rgba(91,192,235,0.18)"},
-  {n:7,  name:"Gata",              lat:13.9175, lng:123.8216, zone:"Northern / Coastal", color:"#5bc0eb", zpale:"rgba(91,192,235,0.18)"},
-  {n:8,  name:"Gibgos",            lat:13.8580, lng:123.7674, zone:"Northern / Coastal", color:"#5bc0eb", zpale:"rgba(91,192,235,0.18)"},
-  {n:9,  name:"Gogon",             lat:13.9441, lng:123.8298, zone:"Northern / Coastal", color:"#5bc0eb", zpale:"rgba(91,192,235,0.18)"},
-  {n:10, name:"Guijalo",           lat:13.7430, lng:123.8685, zone:"Northern / Coastal", color:"#5bc0eb", zpale:"rgba(91,192,235,0.18)"},
-  {n:11, name:"Haponan",           lat:13.8648, lng:123.8453, zone:"Northern / Coastal", color:"#5bc0eb", zpale:"rgba(91,192,235,0.18)"},
-  {n:12, name:"Lidong",            lat:13.8608, lng:123.7420, zone:"Northern / Coastal", color:"#5bc0eb", zpale:"rgba(91,192,235,0.18)"},
-  {n:13, name:"Paniman",           lat:13.8143, lng:123.8718, zone:"Northern / Coastal", color:"#5bc0eb", zpale:"rgba(91,192,235,0.18)"},
-  {n:14, name:"Tabgon",            lat:13.8300, lng:123.8127, zone:"Northern / Coastal", color:"#5bc0eb", zpale:"rgba(91,192,235,0.18)"},
-  {n:15, name:"Tabiguian",         lat:13.8334, lng:123.7984, zone:"Northern / Coastal", color:"#5bc0eb", zpale:"rgba(91,192,235,0.18)"},
-  // ── CENTRAL / INLAND ──────────────────────────────────────────────────────
-  {n:16, name:"Bahay",             lat:13.8091, lng:123.8095, zone:"Central / Inland",   color:"#6dd47e", zpale:"rgba(109,212,126,0.18)"},
-  {n:17, name:"Cadong",            lat:13.7844, lng:123.8383, zone:"Central / Inland",   color:"#6dd47e", zpale:"rgba(109,212,126,0.18)"},
-  {n:18, name:"Hanoy",             lat:13.7944, lng:123.8383, zone:"Central / Inland",   color:"#6dd47e", zpale:"rgba(109,212,126,0.18)"},
-  {n:19, name:"Ilawod",            lat:13.7954, lng:123.8801, zone:"Central / Inland",   color:"#6dd47e", zpale:"rgba(109,212,126,0.18)"},
-  {n:20, name:"Lubas",             lat:13.7709, lng:123.8512, zone:"Central / Inland",   color:"#6dd47e", zpale:"rgba(109,212,126,0.18)"},
-  {n:21, name:"Malabog",           lat:13.7818, lng:123.8110, zone:"Central / Inland",   color:"#6dd47e", zpale:"rgba(109,212,126,0.18)"},
-  {n:22, name:"Minalaba",          lat:13.8120, lng:123.8216, zone:"Central / Inland",   color:"#6dd47e", zpale:"rgba(109,212,126,0.18)"},
-  {n:23, name:"Oroc-Osoc",         lat:13.7968, lng:123.8551, zone:"Central / Inland",   color:"#6dd47e", zpale:"rgba(109,212,126,0.18)"},
-  {n:24, name:"Tabog",             lat:13.7961, lng:123.8272, zone:"Central / Inland",   color:"#6dd47e", zpale:"rgba(109,212,126,0.18)"},
-  {n:25, name:"Terogo",            lat:13.7901, lng:123.8662, zone:"Central / Inland",   color:"#6dd47e", zpale:"rgba(109,212,126,0.18)"},
-  // ── SOUTHERN ──────────────────────────────────────────────────────────────
-  {n:26, name:"Canatuan",          lat:13.7271, lng:123.8355, zone:"Southern",           color:"#f08030", zpale:"rgba(240,128,48,0.18)"},
-  {n:27, name:"Caputatan",         lat:13.7590, lng:123.8669, zone:"Southern",           color:"#f08030", zpale:"rgba(240,128,48,0.18)"},
-  {n:28, name:"Hanopol",           lat:13.7445, lng:123.8481, zone:"Southern",           color:"#f08030", zpale:"rgba(240,128,48,0.18)"},
-  {n:29, name:"Maligaya",          lat:13.8259, lng:123.7434, zone:"Southern",           color:"#f08030", zpale:"rgba(240,128,48,0.18)"},
-  {n:30, name:"Pagolinan",         lat:13.7266, lng:123.8551, zone:"Southern",           color:"#f08030", zpale:"rgba(240,128,48,0.18)"},
-  {n:31, name:"Pili-Centro",       lat:13.7653, lng:123.8516, zone:"Southern",           color:"#f08030", zpale:"rgba(240,128,48,0.18)"},
-  {n:32, name:"Salvacion",         lat:13.7499, lng:123.8662, zone:"Southern",           color:"#f08030", zpale:"rgba(240,128,48,0.18)"},
-  {n:33, name:"San Roque",         lat:13.7601, lng:123.8328, zone:"Southern",           color:"#f08030", zpale:"rgba(240,128,48,0.18)"},
-  {n:34, name:"Solnopan",          lat:13.7664, lng:123.8614, zone:"Southern",           color:"#f08030", zpale:"rgba(240,128,48,0.18)"},
-  // ── EASTERN / FAR ─────────────────────────────────────────────────────────
-  {n:35, name:"Cabacongan",        lat:13.7452, lng:123.9611, zone:"Eastern / Far",      color:"#cc66cc", zpale:"rgba(204,102,204,0.18)"},
-  {n:36, name:"Maqueda",           lat:13.7550, lng:123.9100, zone:"Eastern / Far",      color:"#cc66cc", zpale:"rgba(204,102,204,0.18)"},
-  {n:37, name:"Pandanan",          lat:13.7630, lng:123.9511, zone:"Eastern / Far",      color:"#cc66cc", zpale:"rgba(204,102,204,0.18)"},
-  {n:38, name:"San Vicente",       lat:13.7355, lng:123.9348, zone:"Eastern / Far",      color:"#cc66cc", zpale:"rgba(204,102,204,0.18)"},
-  // ── WESTERN ───────────────────────────────────────────────────────────────
-  {n:39, name:"Antolon",           lat:13.7939, lng:123.7599, zone:"Western",            color:"#ff7f7f", zpale:"rgba(255,127,127,0.18)"},
-  {n:40, name:"Bacgong",           lat:13.8090, lng:123.7695, zone:"Western",            color:"#ff7f7f", zpale:"rgba(255,127,127,0.18)"},
-  {n:41, name:"Bikal",             lat:13.8020, lng:123.8551, zone:"Western",            color:"#ff7f7f", zpale:"rgba(255,127,127,0.18)"},
-  {n:42, name:"Mampirao",          lat:13.8493, lng:123.7434, zone:"Western",            color:"#ff7f7f", zpale:"rgba(255,127,127,0.18)"},
-  {n:43, name:"Mandiclum",         lat:13.8254, lng:123.7264, zone:"Western",            color:"#ff7f7f", zpale:"rgba(255,127,127,0.18)"},
-  {n:44, name:"Oring",             lat:13.7960, lng:123.7797, zone:"Western",            color:"#ff7f7f", zpale:"rgba(255,127,127,0.18)"},
-  {n:45, name:"Patag-Belen",       lat:13.7781, lng:123.7848, zone:"Western",            color:"#ff7f7f", zpale:"rgba(255,127,127,0.18)"},
-  {n:46, name:"Pili-Tabiguian",    lat:13.8172, lng:123.7881, zone:"Western",            color:"#ff7f7f", zpale:"rgba(255,127,127,0.18)"},
-  {n:47, name:"Poloan",            lat:13.7959, lng:123.7797, zone:"Western",            color:"#ff7f7f", zpale:"rgba(255,127,127,0.18)"},
-  {n:48, name:"Santa Cruz",        lat:13.8208, lng:123.7702, zone:"Western",            color:"#ff7f7f", zpale:"rgba(255,127,127,0.18)"},
-  {n:49, name:"Toboan",            lat:13.8379, lng:123.7685, zone:"Western",            color:"#ff7f7f", zpale:"rgba(255,127,127,0.18)"},
-];
+        <!-- MAP CONTAINER -->
+        <main class="map-container">
+            <div id="map"></div>
 
-function makeIcon(color, big){
-  const r=big?12:8, s=`<svg xmlns="http://www.w3.org/2000/svg" width="${r*2+4}" height="${r*2+4}">
-    <circle cx="${r+2}" cy="${r+2}" r="${r}" fill="${color}" stroke="#fff" stroke-width="1.8"/></svg>`;
-  return L.divIcon({html:s,className:'',iconSize:[r*2+4,r*2+4],iconAnchor:[r+2,r+2],popupAnchor:[0,-(r+5)]});
-}
+            <!-- Floating Map Actions -->
+            <div class="map-overlay-controls">
+                <button class="map-btn" id="btnRecenter" title="Recenter Map to Caramoan">
+                    <i class="fa-solid fa-crosshairs"></i>
+                </button>
+                <button class="map-btn" id="btnToggleClusters" title="Toggle Proximity Lines (Clustering)"
+                    style="color: var(--spx-orange);">
+                    <i class="fa-solid fa-circle-nodes"></i>
+                </button>
+            </div>
 
-const markerRefs={};
-const zoneGroups={};
 
-brgys.forEach(b=>{
-  const isPob=b.zone==="Poblacion";
-  const m=L.marker([b.lat,b.lng],{icon:makeIcon(b.color,isPob)}).addTo(map)
-    .bindPopup(`<div class="popup-num">Barangay · #${b.n} of 49</div>
-      <div class="popup-title">${b.name}</div>
-      <span class="popup-zone" style="background:${b.zpale};color:${b.color};border:1px solid ${b.color}">${b.zone}</span>`);
-  markerRefs[b.n]={marker:m,data:b};
-  if(!zoneGroups[b.zone])zoneGroups[b.zone]=[];
-  zoneGroups[b.zone].push(b);
-});
+        </main>
 
-const zoneOrder=["Poblacion","Northern / Coastal","Central / Inland","Southern","Eastern / Far","Western"];
-const listDiv=document.getElementById('brgy-list');
-const allLis=[];
+    </div>
 
-zoneOrder.forEach(z=>{
-  if(!zoneGroups[z])return;
-  const lbl=document.createElement('div');
-  lbl.className='zone-label';
-  lbl.textContent=`${z} (${zoneGroups[z].length})`;
-  lbl.dataset.zone=z;
-  listDiv.appendChild(lbl);
-  const ul=document.createElement('ul');
-  zoneGroups[z].forEach(b=>{
-    const li=document.createElement('li');
-    li.textContent=`${b.n}. ${b.name}`;
-    if(b.zone==="Poblacion")li.classList.add('pob');
-    li.dataset.n=b.n;
-    li.dataset.name=b.name.toLowerCase();
-    li.dataset.zone=b.zone;
-    li.addEventListener('click',()=>{
-      map.setView([b.lat,b.lng],15,{animate:true});
-      markerRefs[b.n].marker.openPopup();
-    });
-    ul.appendChild(li);
-    allLis.push(li);
-  });
-  listDiv.appendChild(ul);
-});
 
-document.getElementById('search-box').addEventListener('input',function(){
-  const q=this.value.toLowerCase().trim();
-  const zoneHasVisible={};
-  allLis.forEach(li=>{
-    const show=!q||li.dataset.name.includes(q);
-    li.style.display=show?'':'none';
-    if(show)zoneHasVisible[li.dataset.zone]=true;
-  });
-  document.querySelectorAll('.zone-label').forEach(lbl=>{
-    lbl.style.display=(!q||zoneHasVisible[lbl.dataset.zone])?'':'none';
-  });
-});
+    <!-- Leaflet Map JS -->
+    <script href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+        integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+    <!-- Fallback if HTTP CDN fails or to make sure it loads, we reload dynamically -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
-// Fit to all markers
-const grp=L.featureGroup(Object.values(markerRefs).map(m=>m.marker));
-map.fitBounds(grp.getBounds().pad(0.06));
+    <script>
+        // Caramoan Center Coordinates
+        const CARAMOAN_CENTER = [13.785, 123.865];
+        const DEFAULT_ZOOM = 12;
 
-// ── Adjacency lines between neighboring barangays ─────────────────────────
-const ADJ={
-  "Agaas":            ["Bahay","Tabgon","Tabiguian","Minalaba"],
-  "Antolon":          ["Bikal","Oring","Patag-Belen","Mandiclum","Malabog"],
-  "Bacgong":          ["Toboan","Santa Cruz","Pili-Tabiguian","Agaas","Lidong"],
-  "Bahay":            ["Agaas","Tabgon","Minalaba","Cadong","Hanoy","Malabog"],
-  "Bikal":            ["Antolon","Oring","Patag-Belen"],
-  "Binanuahan (Pob.)":["Lubas","Cadong","Ili-Centro (Pob.)","Malabog","San Roque"],
-  "Cabacongan":       ["San Vicente","Pandanan","Colongcogong"],
-  "Cadong":           ["Hanoy","Bahay","Binanuahan (Pob.)","Ili-Centro (Pob.)","Tabog","Malabog"],
-  "Canatuan":         ["Hanopol","San Roque","Malabog","Tabog"],
-  "Caputatan":        ["Salvacion","San Roque","Solnopan","Lubas","Ili-Centro (Pob.)"],
-  "Colongcogong":     ["Cabacongan","San Vicente","Pandanan","Pagolinan","Maqueda"],
-  "Daraga":           ["Gogon","Haponan","Gata"],
-  "Gata":             ["Daraga","Gogon","Haponan","Paniman"],
-  "Gibgos":           ["Lidong","Maligaya","Mampirao","Toboan"],
-  "Gogon":            ["Daraga","Gata","Haponan"],
-  "Guijalo":          ["Paniman","Tawog (Pob.)","Ilawod","Terogo"],
-  "Hanopol":          ["Canatuan","San Roque","Malabog","Salvacion","Pili-Centro","Pagolinan","Hanoy","Tabog"],
-  "Hanoy":            ["Cadong","Bahay","Malabog","Hanopol","Tabog"],
-  "Haponan":          ["Gogon","Gata","Paniman","Daraga"],
-  "Ilawod":           ["Guijalo","Tawog (Pob.)","Terogo","Oroc-Osoc","Paniman"],
-  "Ili-Centro (Pob.)":["Binanuahan (Pob.)","Cadong","Caputatan","Lubas","Solnopan","Tawog (Pob.)"],
-  "Lidong":           ["Gibgos","Maligaya","Mampirao","Bacgong","Santa Cruz"],
-  "Lubas":            ["Binanuahan (Pob.)","Ili-Centro (Pob.)","Caputatan","Salvacion"],
-  "Malabog":          ["Antolon","Cadong","Bahay","Hanoy","Hanopol","Canatuan","San Roque","Binanuahan (Pob.)","Tabog"],
-  "Maligaya":         ["Lidong","Gibgos","Mampirao"],
-  "Mampirao":         ["Lidong","Gibgos","Maligaya","Toboan","Santa Cruz"],
-  "Mandiclum":        ["Antolon","Patag-Belen","Pili-Tabiguian","Santa Cruz"],
-  "Maqueda":          ["Colongcogong","Pandanan","San Vicente"],
-  "Minalaba":         ["Agaas","Tabgon","Bahay","Tabiguian"],
-  "Oring":            ["Antolon","Bikal","Patag-Belen","Poloan"],
-  "Oroc-Osoc":        ["Ilawod","Tawog (Pob.)","Terogo"],
-  "Pagolinan":        ["Hanopol","Pili-Centro","Colongcogong","San Vicente","Pandanan"],
-  "Pandanan":         ["Colongcogong","Cabacongan","San Vicente","Maqueda","Pagolinan"],
-  "Paniman":          ["Guijalo","Ilawod","Haponan","Gata","Tawog (Pob.)"],
-  "Patag-Belen":      ["Antolon","Bikal","Oring","Poloan","Mandiclum"],
-  "Pili-Centro":      ["Hanopol","Salvacion","Caputatan","Pagolinan","San Roque"],
-  "Pili-Tabiguian":   ["Bacgong","Tabiguian","Agaas","Minalaba","Mandiclum","Santa Cruz"],
-  "Poloan":           ["Oring","Patag-Belen"],
-  "Salvacion":        ["San Roque","Caputatan","Lubas","Pili-Centro","Hanopol"],
-  "San Roque":        ["Solnopan","Caputatan","Salvacion","Malabog","Pili-Centro","Hanopol"],
-  "San Vicente":      ["Colongcogong","Cabacongan","Pandanan","Maqueda","Pagolinan"],
-  "Santa Cruz":       ["Bacgong","Lidong","Mampirao","Toboan","Mandiclum","Pili-Tabiguian"],
-  "Solnopan":         ["San Roque","Caputatan","Ili-Centro (Pob.)","Tawog (Pob.)"],
-  "Tabgon":           ["Agaas","Bahay","Minalaba","Tabiguian","Pili-Tabiguian"],
-  "Tabiguian":        ["Tabgon","Minalaba","Agaas","Pili-Tabiguian"],
-  "Tabog":            ["Cadong","Hanoy","Malabog","Hanopol","Canatuan"],
-  "Tawog (Pob.)":     ["Guijalo","Ilawod","Oroc-Osoc","Paniman","Solnopan","Ili-Centro (Pob.)","Terogo"],
-  "Terogo":           ["Guijalo","Ilawod","Oroc-Osoc","Tawog (Pob.)"],
-  "Toboan":           ["Bacgong","Gibgos","Mampirao","Santa Cruz","Lidong"],
-};
+        // 49 Barangay data geocoded with coordinates
+        const DEFAULT_BARANGAYS = [
+            { name: "Agaas", lat: 13.8103724, lon: 123.8029827, type: "Mainland", rider: "Rider A", parcels: 0, status: "Normal", notes: "" },
+            { name: "Antolon", lat: 13.7941595, lon: 123.7598774, type: "Mainland", rider: "Rider B", parcels: 0, status: "Normal", notes: "" },
+            { name: "Bacgong", lat: 13.8095368, lon: 123.7692284, type: "Mainland", rider: "Rider B", parcels: 0, status: "Normal", notes: "" },
+            { name: "Bahay", lat: 13.8089214, lon: 123.8094211, type: "Mainland", rider: "Rider A", parcels: 0, status: "Normal", notes: "" },
+            { name: "Bikal", lat: 13.8079611, lon: 123.8496317, type: "Mainland", rider: "Rider C", parcels: 0, status: "Normal", notes: "Main port area for island boats" },
+            { name: "Binanuahan", lat: 13.770659, lon: 123.8598955, type: "Mainland", rider: "Rider D", parcels: 0, status: "Normal", notes: "Poblacion Area" },
+            { name: "Cabacongan", lat: 13.7423178, lon: 123.9643007, type: "Mainland", rider: "Rider E", parcels: 0, status: "Normal", notes: "Remote Eastern Peninsula" },
+            { name: "Cadong", lat: 13.7834521, lon: 123.8461228, type: "Mainland", rider: "Rider C", parcels: 0, status: "Normal", notes: "" },
+            { name: "Canatuan", lat: 13.7086075, lon: 123.8438872, type: "Mainland", rider: "Rider F", parcels: 0, status: "Normal", notes: "Southern border" },
+            { name: "Caputatan", lat: 13.7596969, lon: 123.8663734, type: "Mainland", rider: "Rider D", parcels: 0, status: "Normal", notes: "" },
+            { name: "Colongcogong", lat: 13.7250365, lon: 123.9682795, type: "Mainland", rider: "Rider E", parcels: 0, status: "Normal", notes: "Remote coastal" },
+            { name: "Daraga", lat: 13.9321688, lon: 123.8325084, type: "Island", rider: "Island Boat 1", parcels: 0, status: "Normal", notes: "Lahuy Island - boat access only" },
+            { name: "Gata", lat: 13.9123734, lon: 123.8180353, type: "Island", rider: "Island Boat 1", parcels: 0, status: "Normal", notes: "Lahuy Island - boat access only" },
+            { name: "Gibgos", lat: 13.8582373, lon: 123.7676075, type: "Mainland", rider: "Rider G", parcels: 0, status: "Normal", notes: "" },
+            { name: "Gogon", lat: 13.9591678, lon: 123.8197943, type: "Island", rider: "Island Boat 2", parcels: 0, status: "Normal", notes: "Remote island barangay" },
+            { name: "Guijalo", lat: 13.7367376, lon: 123.8685858, type: "Mainland", rider: "Rider F", parcels: 0, status: "Normal", notes: "Guijalo Port (Entry point from Sabang)" },
+            { name: "Hanopol", lat: 13.7443012, lon: 123.8481685, type: "Mainland", rider: "Rider F", parcels: 0, status: "Normal", notes: "" },
+            { name: "Hanoy", lat: 13.7941057, lon: 123.8385377, type: "Mainland", rider: "Rider C", parcels: 0, status: "Normal", notes: "" },
+            { name: "Haponan", lat: 13.8408875, lon: 123.8480898, type: "Mainland", rider: "Rider H", parcels: 0, status: "Normal", notes: "" },
+            { name: "Ilawod", lat: 13.7953977, lon: 123.88007, type: "Mainland", rider: "Rider I", parcels: 0, status: "Normal", notes: "" },
+            { name: "Ili-Centro", lat: 13.7641463, lon: 123.8672633, type: "Mainland", rider: "Rider D", parcels: 0, status: "Normal", notes: "Poblacion town center" },
+            { name: "Lidong", lat: 13.8579994, lon: 123.7254924, type: "Mainland", rider: "Rider G", parcels: 0, status: "Normal", notes: "" },
+            { name: "Lubas", lat: 13.7704786, lon: 123.849915, type: "Mainland", rider: "Rider D", parcels: 0, status: "Normal", notes: "" },
+            { name: "Malabog", lat: 13.7829582, lon: 123.8108472, type: "Mainland", rider: "Rider A", parcels: 0, status: "Normal", notes: "" },
+            { name: "Maligaya", lat: 13.8303561, lon: 123.7418908, type: "Mainland", rider: "Rider G", parcels: 0, status: "Normal", notes: "" },
+            { name: "Mampirao", lat: 13.847161, lon: 123.7452269, type: "Mainland", rider: "Rider G", parcels: 0, status: "Normal", notes: "" },
+            { name: "Mandiclum", lat: 13.8260194, lon: 123.7268561, type: "Mainland", rider: "Rider G", parcels: 0, status: "Normal", notes: "" },
+            { name: "Maqueda", lat: 13.8211791, lon: 123.8366394, type: "Mainland", rider: "Rider H", parcels: 0, status: "Normal", notes: "" },
+            {
+                name: "Minalaba",
+                lat: 13.8096365,
+                lon: 123.8212971,
+                type: "Mainland",
+                rider: "Rider A",
+                parcels: 0,
+                status: "Normal",
+                notes: ""
+            },
+            { name: "Oring", lat: 13.9134287, lon: 123.8360611, type: "Island", rider: "Island Boat 1", parcels: 0, status: "Normal", notes: "Lahuy Island - boat access only" },
+            { name: "Oroc-Osoc", lat: 13.7954048, lon: 123.854583, type: "Mainland", rider: "Rider C", parcels: 0, status: "Normal", notes: "" },
+            { name: "Pagolinan", lat: 13.7167256, lon: 123.8514716, type: "Mainland", rider: "Rider F", parcels: 0, status: "Normal", notes: "" },
+            { name: "Pandanan", lat: 13.7631416, lon: 123.9511467, type: "Mainland", rider: "Rider E", parcels: 0, status: "Normal", notes: "Eastern peninsula" },
+            { name: "Paniman", lat: 13.8102235, lon: 123.8754124, type: "Mainland", rider: "Rider I", parcels: 0, status: "Normal", notes: "Tourism hub / jump-off for island hopping" },
+            { name: "Patag-Belen", lat: 13.7772993, lon: 123.7841403, type: "Mainland", rider: "Rider B", parcels: 0, status: "Normal", notes: "" },
+            { name: "Pili-Centro", lat: 13.764506, lon: 123.8514861, type: "Mainland", rider: "Rider D", parcels: 0, status: "Normal", notes: "" },
+            { name: "Pili-Tabiguian", lat: 13.8127779, lon: 123.7803874, type: "Mainland", rider: "Rider B", parcels: 0, status: "Normal", notes: "" },
+            { name: "Poloan", lat: 13.7877944, lon: 123.7821733, type: "Mainland", rider: "Rider B", parcels: 0, status: "Normal", notes: "" },
+            { name: "Salvacion", lat: 13.7499149, lon: 123.8618658, type: "Mainland", rider: "Rider F", parcels: 0, status: "Normal", notes: "" },
+            { name: "San Roque", lat: 13.7521798, lon: 123.8428089, type: "Mainland", rider: "Rider F", parcels: 0, status: "Normal", notes: "" },
+            { name: "San Vicente", lat: 13.7357124, lon: 123.9338429, type: "Mainland", rider: "Rider E", parcels: 0, status: "Normal", notes: "" },
+            { name: "Santa Cruz", lat: 13.8188763, lon: 123.7639841, type: "Mainland", rider: "Rider G", parcels: 0, status: "Normal", notes: "" },
+            { name: "Solnopan", lat: 13.7685436, lon: 123.8616282, type: "Mainland", rider: "Rider D", parcels: 0, status: "Normal", notes: "Poblacion Area" },
+            { name: "Tabgon", lat: 13.8293715, lon: 123.812306, type: "Mainland", rider: "Rider H", parcels: 0, status: "Normal", notes: "" },
+            { name: "Tabiguian", lat: 13.8343701, lon: 123.7971385, type: "Mainland", rider: "Rider H", parcels: 0, status: "Normal", notes: "" },
+            { name: "Tabog", lat: 13.7998665, lon: 123.8318433, type: "Mainland", rider: "Rider C", parcels: 0, status: "Normal", notes: "" },
+            { name: "Tawog", lat: 13.7747914, lon: 123.8635945, type: "Mainland", rider: "Rider D", parcels: 0, status: "Normal", notes: "Poblacion Area / Main market" },
+            { name: "Terogo", lat: 13.7857544, lon: 123.8602824, type: "Mainland", rider: "Rider D", parcels: 0, status: "Normal", notes: "" },
+            { name: "Toboan", lat: 13.8345516, lon: 123.7685007, type: "Mainland", rider: "Rider H", parcels: 0, status: "Normal", notes: "" }
+        ];
 
-const byName={};
-brgys.forEach(b=>byName[b.name]=b);
+        // State variables
+        let barangays = [...DEFAULT_BARANGAYS];
+        let map;
+        let markers = [];
+        let searchQuery = '';
+        let selectedBrgyIndex = null;
+        let clusterLines = [];
+        let showClusterLines = true;
+        let activeTab = 'barangays'; // 'barangays' or 'proximity'
 
-function haversineKm(a,b){
-  const R=6371,dLat=(b.lat-a.lat)*Math.PI/180,dLng=(b.lng-a.lng)*Math.PI/180;
-  const v=Math.sin(dLat/2)**2+Math.cos(a.lat*Math.PI/180)*Math.cos(b.lat*Math.PI/180)*Math.sin(dLng/2)**2;
-  return (R*2*Math.asin(Math.sqrt(v))).toFixed(2);
-}
+        // DOM Elements
+        const barangayListEl = document.getElementById('barangayList');
+        const proximityListEl = document.getElementById('proximityList');
+        const searchInput = document.getElementById('searchInput');
+        const themeToggleBtn = document.getElementById('themeToggleBtn');
+        const statTotalBrgy = document.getElementById('statTotalBrgy');
+        const statLabelText = document.getElementById('statLabelText');
+        const btnRecenter = document.getElementById('btnRecenter');
+        const tabBrgyList = document.getElementById('tabBrgyList');
+        const tabProximityList = document.getElementById('tabProximityList');
 
-const drawn=new Set();
-const adjLines=[];
+        // Initialize App
+        function initApp() {
+            // Render Map
+            initMap();
 
-Object.entries(ADJ).forEach(([fromName,neighbors])=>{
-  const a=byName[fromName];
-  if(!a)return;
-  neighbors.forEach(toName=>{
-    const b=byName[toName];
-    if(!b)return;
-    const key=[fromName,toName].sort().join('||');
-    if(drawn.has(key))return;
-    drawn.add(key);
-    const km=haversineKm(a,b);
-    const line=L.polyline([[a.lat,a.lng],[b.lat,b.lng]],{
-      color:'#7ec8e3',weight:1.8,opacity:0.55,dashArray:'5 6'
-    });
-    line.bindTooltip(`<b>${fromName}</b> ↔ <b>${toName}</b><br>~${km} km (straight-line)`,{
-      sticky:true,className:'adj-tip',direction:'top'
-    });
-    line.addTo(map);
-    adjLines.push(line);
-  });
-});
+            // Add Map Markers
+            renderMarkers();
 
-// Toggle control
-const LinesToggle=L.Control.extend({
-  onAdd:function(){
-    const btn=L.DomUtil.create('button');
-    btn.innerHTML='🔗 Lines: ON';
-    btn.style.cssText='background:#0d2137;color:#7ec8e3;border:1px solid #2e6da4;padding:5px 11px;border-radius:6px;cursor:pointer;font-size:0.72rem;font-weight:700;letter-spacing:0.5px;margin-top:4px;display:block';
-    let on=true;
-    L.DomEvent.on(btn,'click',function(e){
-      L.DomEvent.stopPropagation(e);
-      on=!on;
-      adjLines.forEach(l=>on?l.addTo(map):map.removeLayer(l));
-      btn.innerHTML=`🔗 Lines: ${on?'ON':'OFF'}`;
-      btn.style.color=on?'#7ec8e3':'#4a6a7a';
-      btn.style.borderColor=on?'#2e6da4':'#1a3a4a';
-    });
-    return btn;
-  }
-});
-new LinesToggle({position:'topleft'}).addTo(map);
-</script>
+            // Render List and stats
+            updateUI();
 
-<style>
-.adj-tip{background:#0d2137!important;color:#c8dce8!important;border:1px solid #2e6da4!important;border-radius:6px!important;font-size:0.74rem!important;padding:4px 9px!important;box-shadow:0 2px 10px rgba(0,0,0,0.5)!important;pointer-events:none!important}
-.adj-tip::before,.adj-tip::after{display:none!important}
-</style>
+            // Setup Event Listeners
+            setupEventListeners();
+        }
+
+        // Initialize Map
+        function initMap() {
+            // Create map
+            map = L.map('map', {
+                zoomControl: false // Disable standard zoom control to let us place ours or styling
+            }).setView(CARAMOAN_CENTER, DEFAULT_ZOOM);
+
+            // Add zoom control at bottom-right
+            L.control.zoom({
+                position: 'bottomleft'
+            }).addTo(map);
+
+            // Add standard tile layer (CartoDB Voyager or Dark Matter depending on theme)
+            updateMapTiles();
+        }
+
+        // Update map tiles based on theme
+        let currentTileLayer;
+        function updateMapTiles() {
+            const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+
+            if (currentTileLayer) {
+                map.removeLayer(currentTileLayer);
+            }
+
+            const tileUrl = isDark
+                ? 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png'
+                : 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png';
+
+            const attribution = '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>';
+
+            currentTileLayer = L.tileLayer(tileUrl, {
+                attribution: attribution,
+                maxZoom: 20
+            }).addTo(map);
+        }
+
+        // Render Marker pins on map
+        function renderMarkers() {
+            // Clear existing markers
+            markers.forEach(m => map.removeLayer(m));
+            markers = [];
+
+            barangays.forEach((brgy, index) => {
+                const color = '#ff5722'; // SPX Orange
+
+                // Create custom div icon
+                const iconHtml = `
+                    <div class="custom-div-icon">
+                        <div class="marker-pin" style="background-color: ${color};" id="marker-pin-${index}"></div>
+                        <div class="marker-label">${brgy.name}</div>
+                    </div>
+                `;
+
+                const customIcon = L.divIcon({
+                    html: iconHtml,
+                    className: 'custom-div-icon',
+                    iconSize: [30, 42],
+                    iconAnchor: [15, 42],
+                    popupAnchor: [0, -36]
+                });
+
+                // Create Leaflet Marker
+                const marker = L.marker([brgy.lat, brgy.lon], { icon: customIcon }).addTo(map);
+
+                // Store index in marker object for click handlers
+                marker.brgyIndex = index;
+
+                // Bind Popup
+                const popupContent = createPopupContent(brgy, index);
+                marker.bindPopup(popupContent);
+
+                // Event handlers
+                marker.on('click', function () {
+                    selectBarangayInList(index, false);
+                });
+
+                markers.push(marker);
+            });
+        }
+
+        // Create HTML content for Marker Popup
+        function createPopupContent(brgy, index) {
+            return `
+                <div class="popup-header" style="background-color: var(--spx-orange);">
+                    <span>${brgy.name}</span>
+                    <span class="status-badge" style="background-color: white; color: var(--spx-orange); font-size: 0.65rem; padding: 2px 6px;">${brgy.type}</span>
+                </div>
+                <div class="popup-body">
+                    <div class="popup-row">
+                        <span class="popup-lbl">Type:</span>
+                        <span class="popup-val">${brgy.type}</span>
+                    </div>
+                    <div class="popup-row">
+                        <span class="popup-lbl">Latitude:</span>
+                        <span class="popup-val">${brgy.lat.toFixed(6)}</span>
+                    </div>
+                    <div class="popup-row">
+                        <span class="popup-lbl">Longitude:</span>
+                        <span class="popup-val">${brgy.lon.toFixed(6)}</span>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Calculate distance between coordinates using Haversine formula
+        function getDistance(lat1, lon1, lat2, lon2) {
+            const R = 6371; // Earth's radius in km
+            const dLat = (lat2 - lat1) * Math.PI / 180;
+            const dLon = (lon2 - lon1) * Math.PI / 180;
+            const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+                Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+                Math.sin(dLon / 2) * Math.sin(dLon / 2);
+            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+            return R * c;
+        }
+
+        // Get proximity pairs with threshold and isolated-nodes fallback connections
+        function getProximityPairs(listToUse) {
+            const threshold = 2.5; // km
+            const pairs = [];
+            const connectedSet = new Set();
+
+            // First: find standard proximity connections within 2.5 km
+            for (let i = 0; i < listToUse.length; i++) {
+                for (let j = i + 1; j < listToUse.length; j++) {
+                    const b1 = listToUse[i];
+                    const b2 = listToUse[j];
+                    const dist = getDistance(b1.lat, b1.lon, b2.lat, b2.lon);
+                    if (dist <= threshold) {
+                        pairs.push({
+                            b1: b1,
+                            b2: b2,
+                            distance: dist,
+                            isFallback: false
+                        });
+                        connectedSet.add(b1.originalIndex);
+                        connectedSet.add(b2.originalIndex);
+                    }
+                }
+            }
+
+            // Second: find isolated barangays and connect them to their single nearest neighbor
+            for (let i = 0; i < listToUse.length; i++) {
+                const b1 = listToUse[i];
+                if (!connectedSet.has(b1.originalIndex)) {
+                    let minDistance = Infinity;
+                    let nearestNeighbor = null;
+
+                    for (let j = 0; j < listToUse.length; j++) {
+                        if (i === j) continue;
+                        const b2 = listToUse[j];
+                        const dist = getDistance(b1.lat, b1.lon, b2.lat, b2.lon);
+                        if (dist < minDistance) {
+                            minDistance = dist;
+                            nearestNeighbor = b2;
+                        }
+                    }
+
+                    if (nearestNeighbor) {
+                        // Avoid duplicates
+                        const pairExists = pairs.some(p =>
+                            (p.b1.originalIndex === b1.originalIndex && p.b2.originalIndex === nearestNeighbor.originalIndex) ||
+                            (p.b1.originalIndex === nearestNeighbor.originalIndex && p.b2.originalIndex === b1.originalIndex)
+                        );
+
+                        if (!pairExists) {
+                            pairs.push({
+                                b1: b1,
+                                b2: nearestNeighbor,
+                                distance: minDistance,
+                                isFallback: true
+                            });
+                        }
+                        connectedSet.add(b1.originalIndex);
+                        connectedSet.add(nearestNeighbor.originalIndex);
+                    }
+                }
+            }
+
+            // Sort pairs by distance (shortest first)
+            pairs.sort((a, b) => a.distance - b.distance);
+            return pairs;
+        }
+
+        // Draw connections between nearby barangays for clustering
+        function renderClusterLines(filteredBrgy) {
+            // Remove previous lines
+            clusterLines.forEach(line => map.removeLayer(line));
+            clusterLines = [];
+
+            if (!showClusterLines) return;
+
+            // Get computed connections (includes nearest neighbor fallbacks)
+            const connections = getProximityPairs(filteredBrgy);
+
+            connections.forEach(pair => {
+                const b1 = pair.b1;
+                const b2 = pair.b2;
+                const dist = pair.distance;
+                const isFallback = pair.isFallback;
+
+                const line = L.polyline([[b1.lat, b1.lon], [b2.lat, b2.lon]], {
+                    color: 'var(--spx-orange)',
+                    weight: isFallback ? 1.5 : 2.5,
+                    opacity: isFallback ? 0.35 : 0.55,
+                    dashArray: isFallback ? '3, 6' : '5, 5',
+                    className: 'cluster-line'
+                }).addTo(map);
+
+                // Attach sticky tooltip showing distance on hover
+                const fallbackLabel = isFallback ? ' <span style="color: var(--spx-orange); font-weight:700;">(Nearest connection)</span>' : '';
+                line.bindTooltip(`<strong>${b1.name} — ${b2.name}</strong>${fallbackLabel}<br>Distance: ${dist.toFixed(2)} km`, {
+                    sticky: true,
+                    className: 'line-tooltip'
+                });
+
+                clusterLines.push(line);
+            });
+        }
+
+        // Update list dashboard & stats
+        function updateUI() {
+            // Filter barangays
+            let filteredBrgy = barangays.map((b, i) => ({ ...b, originalIndex: i }));
+
+            // Apply search query
+            if (searchQuery.trim() !== '') {
+                const query = searchQuery.toLowerCase().trim();
+                filteredBrgy = filteredBrgy.filter(b => b.name.toLowerCase().includes(query));
+            }
+
+            // Sort alphabetically by name
+            filteredBrgy.sort((a, b) => a.name.localeCompare(b.name));
+
+            // Sync map visibility (show only filtered pins)
+            syncMapMarkersVisibility(filteredBrgy);
+
+            // Draw proximity lines for clustering
+            renderClusterLines(filteredBrgy);
+
+            if (activeTab === 'barangays') {
+                // Show Barangay list container, Hide Proximity container
+                barangayListEl.style.display = 'block';
+                proximityListEl.style.display = 'none';
+
+                // Update Stats
+                statTotalBrgy.innerText = filteredBrgy.length;
+                statLabelText.innerText = 'TOTAL ACTIVE BARANGAYS';
+
+                // Render Barangay List
+                barangayListEl.innerHTML = '';
+
+                if (filteredBrgy.length === 0) {
+                    barangayListEl.innerHTML = `
+                        <div style="text-align: center; padding: 40px 10px; color: var(--text-muted);">
+                            <i class="fa-solid fa-magnifying-glass" style="font-size: 2.5rem; margin-bottom: 15px; display: block; opacity: 0.5;"></i>
+                            <span style="font-weight: 600;">Walang nahanap na barangay.</span>
+                            <p style="font-size: 0.8rem; margin-top: 5px;">Subukan mong baguhin ang search text.</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                filteredBrgy.forEach((brgy, idx) => {
+                    const isSelected = selectedBrgyIndex === brgy.originalIndex;
+
+                    // Format index as two digit string
+                    const displayNum = String(idx + 1).padStart(2, '0');
+
+                    const item = document.createElement('div');
+                    item.className = `barangay-item ${isSelected ? 'active-selected' : ''}`;
+                    item.setAttribute('data-index', brgy.originalIndex);
+
+                    item.innerHTML = `
+                        <div class="item-left">
+                            <span class="item-number">${displayNum}</span>
+                            <i class="fa-solid fa-location-dot" style="color: var(--spx-orange); font-size: 0.8rem; margin-right: 8px;" title="Barangay Pin"></i>
+                            <span class="item-name">${brgy.name}</span>
+                        </div>
+                        <div class="item-right">
+                            <span class="item-type-badge ${brgy.type.toLowerCase()}">${brgy.type}</span>
+                            <i class="fa-solid fa-chevron-right" style="font-size: 0.75rem; color: var(--text-muted); opacity: 0.7;"></i>
+                        </div>
+                    `;
+
+                    // Add click handler to select and fly to
+                    item.addEventListener('click', () => {
+                        selectBarangayInList(brgy.originalIndex, true);
+                    });
+
+                    barangayListEl.appendChild(item);
+                });
+            } else {
+                // Show Proximity container, Hide Barangay container
+                barangayListEl.style.display = 'none';
+                proximityListEl.style.display = 'block';
+
+                // Get proximity connections list
+                const connections = getProximityPairs(filteredBrgy);
+
+                // Update Stats
+                statTotalBrgy.innerText = connections.length;
+                statLabelText.innerText = 'TOTAL PROXIMITY CONNECTIONS';
+
+                // Render Proximity connections List
+                proximityListEl.innerHTML = '';
+
+                if (connections.length === 0) {
+                    proximityListEl.innerHTML = `
+                        <div style="text-align: center; padding: 40px 10px; color: var(--text-muted);">
+                            <i class="fa-solid fa-circle-nodes" style="font-size: 2.5rem; margin-bottom: 15px; display: block; opacity: 0.5;"></i>
+                            <span style="font-weight: 600;">Walang nahanap na koneksyon.</span>
+                            <p style="font-size: 0.8rem; margin-top: 5px;">Walang barangay na magkakalapit sa kasalukuyang listahan.</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                connections.forEach((pair, idx) => {
+                    const item = document.createElement('div');
+                    item.className = 'proximity-item';
+                    item.setAttribute('data-pair-idx', idx);
+
+                    const fallbackTag = pair.isFallback ? '<span class="fallback-tag">Nearest</span>' : '';
+
+                    item.innerHTML = `
+                        <div class="proximity-left">
+                            <span class="proximity-names">${pair.b1.name} <i class="fa-solid fa-arrows-left-right"></i> ${pair.b2.name}</span>
+                            <span class="proximity-details">${pair.b1.type} — ${pair.b2.type} ${fallbackTag}</span>
+                        </div>
+                        <div class="proximity-right">
+                            <span class="proximity-distance">${pair.distance.toFixed(2)} km</span>
+                        </div>
+                    `;
+
+                    item.addEventListener('click', () => {
+                        selectProximityPair(idx, pair);
+                    });
+
+                    proximityListEl.appendChild(item);
+                });
+            }
+        }
+
+        // Show/hide map markers based on current active list filter
+        function syncMapMarkersVisibility(filteredBrgy) {
+            const activeOriginalIndices = new Set(filteredBrgy.map(b => b.originalIndex));
+
+            markers.forEach((marker, index) => {
+                if (activeOriginalIndices.has(index)) {
+                    if (!map.hasLayer(marker)) {
+                        marker.addTo(map);
+                    }
+                } else {
+                    if (map.hasLayer(marker)) {
+                        map.removeLayer(marker);
+                    }
+                }
+            });
+        }
+
+        // Select a barangay, focus on map, open popup
+        function selectBarangayInList(index, flyToMap = true) {
+            // Update selected class
+            const previousSelected = document.querySelector('.barangay-item.active-selected');
+            if (previousSelected) {
+                previousSelected.classList.remove('active-selected');
+            }
+
+            selectedBrgyIndex = index;
+            const selectedCard = document.querySelector(`.barangay-item[data-index="${index}"]`);
+            if (selectedCard) {
+                selectedCard.classList.add('active-selected');
+                selectedCard.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            }
+
+            // Reset any active proximity list selection
+            const activeProx = document.querySelector('.proximity-item.active-selected');
+            if (activeProx) activeProx.classList.remove('active-selected');
+
+            // Reset proximity line styles
+            clusterLines.forEach(line => {
+                line.setStyle({
+                    color: 'var(--spx-orange)',
+                    weight: line.isFallback ? 1.5 : 2.5,
+                    opacity: line.isFallback ? 0.35 : 0.55
+                });
+            });
+
+            // Focus on marker and open popup
+            const marker = markers[index];
+            if (marker) {
+                if (flyToMap) {
+                    map.flyTo([barangays[index].lat, barangays[index].lon], 14, {
+                        animate: true,
+                        duration: 1.2
+                    });
+                }
+
+                // Delay opening popup slightly to allow flying animation to finish
+                setTimeout(() => {
+                    marker.openPopup();
+
+                    // Highlight pin on map
+                    const pins = document.querySelectorAll('.marker-pin');
+                    pins.forEach(pin => pin.classList.remove('active-highlight'));
+
+                    const activePin = document.getElementById(`marker-pin-${index}`);
+                    if (activePin) {
+                        activePin.classList.add('active-highlight');
+                    }
+                }, flyToMap ? 1200 : 50);
+            }
+        }
+
+        // Select and highlight a proximity pair on map
+        function selectProximityPair(idx, pair) {
+            // Remove previous selected class
+            const previousSelected = document.querySelector('.proximity-item.active-selected');
+            if (previousSelected) {
+                previousSelected.classList.remove('active-selected');
+            }
+            const selectedCard = document.querySelector(`.proximity-item[data-pair-idx="${idx}"]`);
+            if (selectedCard) {
+                selectedCard.classList.add('active-selected');
+            }
+
+            // Reset any active barangay list selection
+            const activeBrgy = document.querySelector('.barangay-item.active-selected');
+            if (activeBrgy) activeBrgy.classList.remove('active-selected');
+            selectedBrgyIndex = null;
+
+            // Fly to midpoint
+            const midLat = (pair.b1.lat + pair.b2.lat) / 2;
+            const midLon = (pair.b1.lon + pair.b2.lon) / 2;
+            map.flyTo([midLat, midLon], 14, {
+                animate: true,
+                duration: 1.2
+            });
+
+            // Highlight the specific polyline on the map
+            clusterLines.forEach(line => {
+                const latlngs = line.getLatLngs();
+                const isMatch = (
+                    (latlngs[0].lat === pair.b1.lat && latlngs[0].lng === pair.b1.lon && latlngs[1].lat === pair.b2.lat && latlngs[1].lng === pair.b2.lon) ||
+                    (latlngs[0].lat === pair.b2.lat && latlngs[0].lng === pair.b2.lon && latlngs[1].lat === pair.b1.lat && latlngs[1].lng === pair.b1.lon)
+                );
+
+                if (isMatch) {
+                    line.setStyle({
+                        color: '#ff3d00', // Highlight color: Red-Orange
+                        weight: 4,
+                        opacity: 0.95
+                    });
+                    line.openTooltip();
+                } else {
+                    // Reset to standard style
+                    line.setStyle({
+                        color: 'var(--spx-orange)',
+                        weight: line.isFallback ? 1.5 : 2.5,
+                        opacity: line.isFallback ? 0.35 : 0.55
+                    });
+                }
+            });
+        }
+
+
+
+        // Setup All Event Listeners
+        function setupEventListeners() {
+            // Search Input
+            searchInput.addEventListener('input', (e) => {
+                searchQuery = e.target.value;
+                updateUI();
+            });
+
+
+            // Theme toggle
+            themeToggleBtn.addEventListener('click', () => {
+                const currentTheme = document.documentElement.getAttribute('data-theme');
+                const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+
+                document.documentElement.setAttribute('data-theme', newTheme);
+                themeToggleBtn.innerHTML = newTheme === 'dark'
+                    ? '<i class="fa-solid fa-sun"></i>'
+                    : '<i class="fa-solid fa-moon"></i>';
+
+                // Update Leaflet tile source
+                updateMapTiles();
+                // Redraw markers to keep consistency in text sizes etc
+                renderMarkers();
+            });
+
+            // Recenter Button
+            btnRecenter.addEventListener('click', () => {
+                map.flyTo(CARAMOAN_CENTER, DEFAULT_ZOOM, {
+                    animate: true,
+                    duration: 1.5
+                });
+
+                // Remove highlights
+                const pins = document.querySelectorAll('.marker-pin');
+                pins.forEach(pin => pin.classList.remove('active-highlight'));
+                selectedBrgyIndex = null;
+                updateUI();
+            });
+
+            // Toggle Proximity Lines Button
+            const btnToggleClusters = document.getElementById('btnToggleClusters');
+            if (showClusterLines) {
+                btnToggleClusters.classList.add('active');
+            }
+            btnToggleClusters.addEventListener('click', () => {
+                showClusterLines = !showClusterLines;
+                if (showClusterLines) {
+                    btnToggleClusters.classList.add('active');
+                } else {
+                    btnToggleClusters.classList.remove('active');
+                }
+                updateUI();
+            });
+
+            // Tab Switching Listeners
+            tabBrgyList.addEventListener('click', () => {
+                activeTab = 'barangays';
+
+                // Style Tab 1 Active
+                tabBrgyList.style.color = 'var(--spx-orange)';
+                tabBrgyList.style.fontWeight = '700';
+                tabBrgyList.style.borderBottomColor = 'var(--spx-orange)';
+
+                // Style Tab 2 Inactive
+                tabProximityList.style.color = 'var(--text-muted)';
+                tabProximityList.style.fontWeight = '600';
+                tabProximityList.style.borderBottomColor = 'transparent';
+
+                // Reset search query
+                searchInput.value = '';
+                searchQuery = '';
+                searchInput.placeholder = 'Maghanap ng Barangay (e.g. Tawog)...';
+
+                updateUI();
+            });
+
+            tabProximityList.addEventListener('click', () => {
+                activeTab = 'proximity';
+
+                // Style Tab 2 Active
+                tabProximityList.style.color = 'var(--spx-orange)';
+                tabProximityList.style.fontWeight = '700';
+                tabProximityList.style.borderBottomColor = 'var(--spx-orange)';
+
+                // Style Tab 1 Inactive
+                tabBrgyList.style.color = 'var(--text-muted)';
+                tabBrgyList.style.fontWeight = '600';
+                tabBrgyList.style.borderBottomColor = 'transparent';
+
+                // Reset search query
+                searchInput.value = '';
+                searchQuery = '';
+                searchInput.placeholder = 'Maghanap ng Barangay sa koneksyon (e.g. Agaas)...';
+
+                updateUI();
+            });
+
+
+
+        }
+
+        // Initialize on load
+        window.addEventListener('DOMContentLoaded', initApp);
+    </script>
 </body>
+
 </html>
