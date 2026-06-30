@@ -1265,6 +1265,27 @@
                 }
             }
 
+            // Explicitly connect Gibgos and Mampirao
+            const gibgos = listToUse.find(b => b.name === "Gibgos");
+            const mampirao = listToUse.find(b => b.name === "Mampirao");
+            if (gibgos && mampirao) {
+                const alreadyConnected = pairs.some(p =>
+                    (p.b1.originalIndex === gibgos.originalIndex && p.b2.originalIndex === mampirao.originalIndex) ||
+                    (p.b1.originalIndex === mampirao.originalIndex && p.b2.originalIndex === gibgos.originalIndex)
+                );
+                if (!alreadyConnected) {
+                    const dist = getDistance(gibgos.lat, gibgos.lon, mampirao.lat, mampirao.lon);
+                    pairs.push({
+                        b1: gibgos,
+                        b2: mampirao,
+                        distance: dist,
+                        isFallback: false
+                    });
+                    connectedSet.add(gibgos.originalIndex);
+                    connectedSet.add(mampirao.originalIndex);
+                }
+            }
+
             // Second: find isolated barangays and connect them to their single nearest neighbor
             for (let i = 0; i < listToUse.length; i++) {
                 const b1 = listToUse[i];
