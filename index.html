@@ -415,6 +415,47 @@
             border: 1px solid rgba(96, 165, 250, 0.3);
         }
 
+        /* Location Status Badges */
+        .location-status-badge {
+            font-size: 0.6rem;
+            font-weight: 700;
+            padding: 1px 4px;
+            border-radius: 3px;
+            text-transform: uppercase;
+            border: 1px solid transparent;
+            display: inline-block;
+        }
+        .location-status-badge.proper {
+            background-color: #ecfdf5;
+            color: #10b981;
+            border-color: #a7f3d0;
+        }
+        [data-theme="dark"] .location-status-badge.proper {
+            background-color: rgba(16, 185, 129, 0.15);
+            color: #34d399;
+            border-color: rgba(52, 211, 153, 0.3);
+        }
+        .location-status-badge.mountain {
+            background-color: #fef3c7;
+            color: #d97706;
+            border-color: #fde68a;
+        }
+        [data-theme="dark"] .location-status-badge.mountain {
+            background-color: rgba(217, 119, 6, 0.15);
+            color: #fbbf24;
+            border-color: rgba(251, 191, 36, 0.3);
+        }
+        .location-status-badge.island {
+            background-color: #eff6ff;
+            color: #2563eb;
+            border-color: #bfdbfe;
+        }
+        [data-theme="dark"] .location-status-badge.island {
+            background-color: rgba(37, 99, 235, 0.15);
+            color: #60a5fa;
+            border-color: rgba(96, 165, 250, 0.3);
+        }
+
         .item-parcels-badge {
             font-size: 0.7rem;
             font-weight: 700;
@@ -891,12 +932,18 @@
 
             <!-- Stats Bar -->
             <div class="stats-section">
-                <div class="stats-grid" style="grid-template-columns: 1fr;">
+                <div class="stats-grid" id="statsGrid" style="grid-template-columns: repeat(3, 1fr);">
                     <div class="stat-card">
-                        <div class="stat-val" id="statTotalBrgy" style="font-size: 1.8rem; color: var(--spx-orange);">49
-                        </div>
-                        <div class="stat-lbl" id="statLabelText" style="letter-spacing: 1px;">TOTAL ACTIVE BARANGAYS
-                        </div>
+                        <div class="stat-val" id="statTotalBrgy" style="color: var(--spx-orange);">49</div>
+                        <div class="stat-lbl" id="statLabelText" style="letter-spacing: 1px;">ACTIVE BRGYS</div>
+                    </div>
+                    <div class="stat-card" id="statCardAdo2026">
+                        <div class="stat-val" id="statAdo2026" style="color: var(--text-primary);">0.00</div>
+                        <div class="stat-lbl" style="letter-spacing: 1px;">TOTAL ADO '26</div>
+                    </div>
+                    <div class="stat-card" id="statCardAdo2027">
+                        <div class="stat-val" id="statAdo2027" style="color: #10b981;">0.00</div>
+                        <div class="stat-lbl" style="letter-spacing: 1px;">TOTAL ADO '27</div>
                     </div>
                 </div>
             </div>
@@ -960,64 +1007,55 @@
 
         // 49 Barangay data geocoded with coordinates
         const DEFAULT_BARANGAYS = [
-            { name: "Agaas", lat: 13.8103724, lon: 123.8029827, type: "Mainland", rider: "Rider A", parcels: 0, status: "Normal", notes: "" },
-            { name: "Antolon", lat: 13.7941595, lon: 123.7598774, type: "Mainland", rider: "Rider B", parcels: 0, status: "Normal", notes: "" },
-            { name: "Bacgong", lat: 13.8095368, lon: 123.7692284, type: "Mainland", rider: "Rider B", parcels: 0, status: "Normal", notes: "" },
-            { name: "Bahay", lat: 13.8089214, lon: 123.8094211, type: "Mainland", rider: "Rider A", parcels: 0, status: "Normal", notes: "" },
-            { name: "Bikal", lat: 13.8079611, lon: 123.8496317, type: "Mainland", rider: "Rider C", parcels: 0, status: "Normal", notes: "Main port area for island boats" },
-            { name: "Binanuahan", lat: 13.770659, lon: 123.8598955, type: "Mainland", rider: "Rider D", parcels: 0, status: "Normal", notes: "Poblacion Area" },
-            { name: "Cabacongan", lat: 13.7423178, lon: 123.9643007, type: "Mainland", rider: "Rider E", parcels: 0, status: "Normal", notes: "Remote Eastern Peninsula" },
-            { name: "Cadong", lat: 13.7834521, lon: 123.8461228, type: "Mainland", rider: "Rider C", parcels: 0, status: "Normal", notes: "" },
-            { name: "Canatuan", lat: 13.7086075, lon: 123.8438872, type: "Mainland", rider: "Rider F", parcels: 0, status: "Normal", notes: "Southern border" },
-            { name: "Caputatan", lat: 13.7596969, lon: 123.8663734, type: "Mainland", rider: "Rider D", parcels: 0, status: "Normal", notes: "" },
-            { name: "Colongcogong", lat: 13.7250365, lon: 123.9682795, type: "Mainland", rider: "Rider E", parcels: 0, status: "Normal", notes: "Remote coastal" },
-            { name: "Daraga", lat: 13.9321688, lon: 123.8325084, type: "Island", rider: "Island Boat 1", parcels: 0, status: "Normal", notes: "Lahuy Island - boat access only" },
-            { name: "Gata", lat: 13.9123734, lon: 123.8180353, type: "Island", rider: "Island Boat 1", parcels: 0, status: "Normal", notes: "Lahuy Island - boat access only" },
-            { name: "Gibgos", lat: 13.8582373, lon: 123.7676075, type: "Mainland", rider: "Rider G", parcels: 0, status: "Normal", notes: "" },
-            { name: "Gogon", lat: 13.9591678, lon: 123.8197943, type: "Island", rider: "Island Boat 2", parcels: 0, status: "Normal", notes: "Remote island barangay" },
-            { name: "Guijalo", lat: 13.7367376, lon: 123.8685858, type: "Mainland", rider: "Rider F", parcels: 0, status: "Normal", notes: "Guijalo Port (Entry point from Sabang)" },
-            { name: "Hanopol", lat: 13.7443012, lon: 123.8481685, type: "Mainland", rider: "Rider F", parcels: 0, status: "Normal", notes: "" },
-            { name: "Hanoy", lat: 13.7941057, lon: 123.8385377, type: "Mainland", rider: "Rider C", parcels: 0, status: "Normal", notes: "" },
-            { name: "Haponan", lat: 13.8408875, lon: 123.8480898, type: "Mainland", rider: "Rider H", parcels: 0, status: "Normal", notes: "" },
-            { name: "Ilawod", lat: 13.7953977, lon: 123.88007, type: "Mainland", rider: "Rider I", parcels: 0, status: "Normal", notes: "" },
-            { name: "Ili-Centro", lat: 13.7641463, lon: 123.8672633, type: "Mainland", rider: "Rider D", parcels: 0, status: "Normal", notes: "Poblacion town center" },
-            { name: "Lidong", lat: 13.8579994, lon: 123.7254924, type: "Mainland", rider: "Rider G", parcels: 0, status: "Normal", notes: "" },
-            { name: "Lubas", lat: 13.7704786, lon: 123.849915, type: "Mainland", rider: "Rider D", parcels: 0, status: "Normal", notes: "" },
-            { name: "Malabog", lat: 13.7829582, lon: 123.8108472, type: "Mainland", rider: "Rider A", parcels: 0, status: "Normal", notes: "" },
-            { name: "Maligaya", lat: 13.8303561, lon: 123.7418908, type: "Mainland", rider: "Rider G", parcels: 0, status: "Normal", notes: "" },
-            { name: "Mampirao", lat: 13.847161, lon: 123.7452269, type: "Mainland", rider: "Rider G", parcels: 0, status: "Normal", notes: "" },
-            { name: "Mandiclum", lat: 13.8260194, lon: 123.7268561, type: "Mainland", rider: "Rider G", parcels: 0, status: "Normal", notes: "" },
-            { name: "Maqueda", lat: 13.8211791, lon: 123.8366394, type: "Mainland", rider: "Rider H", parcels: 0, status: "Normal", notes: "" },
-            {
-                name: "Minalaba",
-                lat: 13.8096365,
-                lon: 123.8212971,
-                type: "Mainland",
-                rider: "Rider A",
-                parcels: 0,
-                status: "Normal",
-                notes: ""
-            },
-            { name: "Oring", lat: 13.9134287, lon: 123.8360611, type: "Island", rider: "Island Boat 1", parcels: 0, status: "Normal", notes: "Lahuy Island - boat access only" },
-            { name: "Oroc-Osoc", lat: 13.7954048, lon: 123.854583, type: "Mainland", rider: "Rider C", parcels: 0, status: "Normal", notes: "" },
-            { name: "Pagolinan", lat: 13.7167256, lon: 123.8514716, type: "Mainland", rider: "Rider F", parcels: 0, status: "Normal", notes: "" },
-            { name: "Pandanan", lat: 13.7631416, lon: 123.9511467, type: "Mainland", rider: "Rider E", parcels: 0, status: "Normal", notes: "Eastern peninsula" },
-            { name: "Paniman", lat: 13.8102235, lon: 123.8754124, type: "Mainland", rider: "Rider I", parcels: 0, status: "Normal", notes: "Tourism hub / jump-off for island hopping" },
-            { name: "Patag-Belen", lat: 13.7772993, lon: 123.7841403, type: "Mainland", rider: "Rider B", parcels: 0, status: "Normal", notes: "" },
-            { name: "Pili-Centro", lat: 13.764506, lon: 123.8514861, type: "Mainland", rider: "Rider D", parcels: 0, status: "Normal", notes: "" },
-            { name: "Pili-Tabiguian", lat: 13.8127779, lon: 123.7803874, type: "Mainland", rider: "Rider B", parcels: 0, status: "Normal", notes: "" },
-            { name: "Poloan", lat: 13.7877944, lon: 123.7821733, type: "Mainland", rider: "Rider B", parcels: 0, status: "Normal", notes: "" },
-            { name: "Salvacion", lat: 13.7499149, lon: 123.8618658, type: "Mainland", rider: "Rider F", parcels: 0, status: "Normal", notes: "" },
-            { name: "San Roque", lat: 13.7521798, lon: 123.8428089, type: "Mainland", rider: "Rider F", parcels: 0, status: "Normal", notes: "" },
-            { name: "San Vicente", lat: 13.7357124, lon: 123.9338429, type: "Mainland", rider: "Rider E", parcels: 0, status: "Normal", notes: "" },
-            { name: "Santa Cruz", lat: 13.8188763, lon: 123.7639841, type: "Mainland", rider: "Rider G", parcels: 0, status: "Normal", notes: "" },
-            { name: "Solnopan", lat: 13.7685436, lon: 123.8616282, type: "Mainland", rider: "Rider D", parcels: 0, status: "Normal", notes: "Poblacion Area" },
-            { name: "Tabgon", lat: 13.8293715, lon: 123.812306, type: "Mainland", rider: "Rider H", parcels: 0, status: "Normal", notes: "" },
-            { name: "Tabiguian", lat: 13.8343701, lon: 123.7971385, type: "Mainland", rider: "Rider H", parcels: 0, status: "Normal", notes: "" },
-            { name: "Tabog", lat: 13.7998665, lon: 123.8318433, type: "Mainland", rider: "Rider C", parcels: 0, status: "Normal", notes: "" },
-            { name: "Tawog", lat: 13.7747914, lon: 123.8635945, type: "Mainland", rider: "Rider D", parcels: 0, status: "Normal", notes: "Poblacion Area / Main market" },
-            { name: "Terogo", lat: 13.7857544, lon: 123.8602824, type: "Mainland", rider: "Rider D", parcels: 0, status: "Normal", notes: "" },
-            { name: "Toboan", lat: 13.8345516, lon: 123.7685007, type: "Mainland", rider: "Rider H", parcels: 0, status: "Normal", notes: "" }
+            { name: "Agaas", lat: 13.8103724, lon: 123.8029827, type: "Mainland", rider: "Rider A", parcels: 0, status: "Normal", notes: "", ado_2026: 6.42, ado_2027: 7.07, hub: "OP Caramoan Camarines Sur Hub", location_status: "PROPER" },
+            { name: "Antolon", lat: 13.7941595, lon: 123.7598774, type: "Mainland", rider: "Rider B", parcels: 0, status: "Normal", notes: "", ado_2026: 3.61, ado_2027: 3.98, hub: "OP Caramoan Camarines Sur Hub", location_status: "MOUNTAIN" },
+            { name: "Bacgong", lat: 13.8095368, lon: 123.7692284, type: "Mainland", rider: "Rider B", parcels: 0, status: "Normal", notes: "", ado_2026: 5.38, ado_2027: 5.92, hub: "OP Caramoan Camarines Sur Hub", location_status: "MOUNTAIN" },
+            { name: "Bahay", lat: 13.8089214, lon: 123.8094211, type: "Mainland", rider: "Rider A", parcels: 0, status: "Normal", notes: "", ado_2026: 17.35, ado_2027: 19.08, hub: "OP Caramoan Camarines Sur Hub", location_status: "PROPER" },
+            { name: "Bikal", lat: 13.8079611, lon: 123.8496317, type: "Mainland", rider: "Rider C", parcels: 0, status: "Normal", notes: "Main port area for island boats", ado_2026: 74.81, ado_2027: 82.29, hub: "OP Caramoan Camarines Sur Hub", location_status: "PROPER" },
+            { name: "Binanuahan (Pob.)", lat: 13.770659, lon: 123.8598955, type: "Mainland", rider: "Rider D", parcels: 0, status: "Normal", notes: "Poblacion Area", ado_2026: 42, ado_2027: 46.2, hub: "OP Caramoan Camarines Sur Hub", location_status: "PROPER" },
+            { name: "Cabacongan", lat: 13.7423178, lon: 123.9643007, type: "Mainland", rider: "Rider E", parcels: 0, status: "Normal", notes: "Remote Eastern Peninsula", ado_2026: 14.38, ado_2027: 15.81, hub: "OP Caramoan Camarines Sur Hub", location_status: "ISLAND" },
+            { name: "Cadong", lat: 13.7834521, lon: 123.8461228, type: "Mainland", rider: "Rider C", parcels: 0, status: "Normal", notes: "", ado_2026: 43.65, ado_2027: 48.01, hub: "OP Caramoan Camarines Sur Hub", location_status: "PROPER" },
+            { name: "Canatuan", lat: 13.7086075, lon: 123.8438872, type: "Mainland", rider: "Rider F", parcels: 0, status: "Normal", notes: "Southern border", ado_2026: null, ado_2027: null, hub: "OP Caramoan Camarines Sur Hub", location_status: "PROPER" },
+            { name: "Caputatan", lat: 13.7596969, lon: 123.8663734, type: "Mainland", rider: "Rider D", parcels: 0, status: "Normal", notes: "", ado_2026: 16.34, ado_2027: 17.98, hub: "OP Caramoan Camarines Sur Hub", location_status: "PROPER" },
+            { name: "Colongcogong", lat: 13.7250365, lon: 123.9682795, type: "Mainland", rider: "Rider E", parcels: 0, status: "Normal", notes: "Remote coastal", ado_2026: 12.49, ado_2027: 13.74, hub: "OP Caramoan Camarines Sur Hub", location_status: "ISLAND" },
+            { name: "Daraga", lat: 13.9321688, lon: 123.8325084, type: "Island", rider: "Island Boat 1", parcels: 0, status: "Normal", notes: "Lahuy Island - boat access only", ado_2026: null, ado_2027: null, hub: "OP Caramoan Camarines Sur Hub", location_status: "ISLAND" },
+            { name: "Gata", lat: 13.9123734, lon: 123.8180353, type: "Island", rider: "Island Boat 1", parcels: 0, status: "Normal", notes: "Lahuy Island - boat access only", ado_2026: null, ado_2027: null, hub: "OP Caramoan Camarines Sur Hub", location_status: "ISLAND" },
+            { name: "Gibgos", lat: 13.8582373, lon: 123.7676075, type: "Mainland", rider: "Rider G", parcels: 0, status: "Normal", notes: "", ado_2026: 32.81, ado_2027: 36.09, hub: "OP Caramoan Camarines Sur Hub", location_status: "ISLAND" },
+            { name: "Gogon", lat: 13.9591678, lon: 123.8197943, type: "Island", rider: "Island Boat 2", parcels: 0, status: "Normal", notes: "Remote island barangay", ado_2026: null, ado_2027: null, hub: "OP Caramoan Camarines Sur Hub", location_status: "ISLAND" },
+            { name: "Guijalo", lat: 13.7367376, lon: 123.8685858, type: "Mainland", rider: "Rider F", parcels: 0, status: "Normal", notes: "Guijalo Port (Entry point from Sabang)", ado_2026: 89.38, ado_2027: 98.32, hub: "OP Caramoan Camarines Sur Hub", location_status: "PROPER" },
+            { name: "Hanopol", lat: 13.7443012, lon: 123.8481685, type: "Mainland", rider: "Rider F", parcels: 0, status: "Normal", notes: "", ado_2026: null, ado_2027: null, hub: "OP Caramoan Camarines Sur Hub", location_status: "PROPER" },
+            { name: "Hanoy", lat: 13.7941057, lon: 123.8385377, type: "Mainland", rider: "Rider C", parcels: 0, status: "Normal", notes: "", ado_2026: 6.34, ado_2027: 6.98, hub: "OP Caramoan Camarines Sur Hub", location_status: "MOUNTAIN" },
+            { name: "Haponan", lat: 13.8408875, lon: 123.8480898, type: "Mainland", rider: "Rider H", parcels: 0, status: "Normal", notes: "", ado_2026: null, ado_2027: null, hub: "OP Caramoan Camarines Sur Hub", location_status: "PROPER" },
+            { name: "Ilawod", lat: 13.7953977, lon: 123.88007, type: "Mainland", rider: "Rider I", parcels: 0, status: "Normal", notes: "", ado_2026: 11.04, ado_2027: 12.15, hub: "OP Caramoan Camarines Sur Hub", location_status: "PROPER" },
+            { name: "Ili-Centro (Pob.)", lat: 13.7641463, lon: 123.8672633, type: "Mainland", rider: "Rider D", parcels: 0, status: "Normal", notes: "Poblacion town center", ado_2026: 50.47, ado_2027: 55.52, hub: "OP Caramoan Camarines Sur Hub", location_status: "PROPER" },
+            { name: "Lidong", lat: 13.8579994, lon: 123.7254924, type: "Mainland", rider: "Rider G", parcels: 0, status: "Normal", notes: "", ado_2026: 9.28, ado_2027: 10.2, hub: "OP Caramoan Camarines Sur Hub", location_status: "MOUNTAIN" },
+            { name: "Lubas", lat: 13.7704786, lon: 123.849915, type: "Mainland", rider: "Rider D", parcels: 0, status: "Normal", notes: "", ado_2026: 19.31, ado_2027: 21.25, hub: "OP Caramoan Camarines Sur Hub", location_status: "PROPER" },
+            { name: "Malabog", lat: 13.7829582, lon: 123.8108472, type: "Mainland", rider: "Rider A", parcels: 0, status: "Normal", notes: "", ado_2026: 8.99, ado_2027: 9.89, hub: "OP Caramoan Camarines Sur Hub", location_status: "MOUNTAIN" },
+            { name: "Maligaya", lat: 13.8303561, lon: 123.7418908, type: "Mainland", rider: "Rider G", parcels: 0, status: "Normal", notes: "", ado_2026: 10.48, ado_2027: 11.53, hub: "OP Caramoan Camarines Sur Hub", location_status: "PROPER" },
+            { name: "Mampirao", lat: 13.847161, lon: 123.7452269, type: "Mainland", rider: "Rider G", parcels: 0, status: "Normal", notes: "", ado_2026: 12.45, ado_2027: 13.69, hub: "OP Caramoan Camarines Sur Hub", location_status: "MOUNTAIN" },
+            { name: "Mandiclum (Mandiclom)", lat: 13.8260194, lon: 123.7268561, type: "Mainland", rider: "Rider G", parcels: 0, status: "Normal", notes: "", ado_2026: 6.06, ado_2027: 6.67, hub: "OP Caramoan Camarines Sur Hub", location_status: "MOUNTAIN" },
+            { name: "Maqueda", lat: 13.8211791, lon: 123.8366394, type: "Mainland", rider: "Rider H", parcels: 0, status: "Normal", notes: "", ado_2026: null, ado_2027: null, hub: "OP Caramoan Camarines Sur Hub", location_status: "PROPER" },
+            { name: "Minalaba", lat: 13.8096365, lon: 123.8212971, type: "Mainland", rider: "Rider A", parcels: 0, status: "Normal", notes: "", ado_2026: 11.77, ado_2027: 12.94, hub: "OP Caramoan Camarines Sur Hub", location_status: "PROPER" },
+            { name: "Oring", lat: 13.9134287, lon: 123.8360611, type: "Island", rider: "Island Boat 1", parcels: 0, status: "Normal", notes: "Lahuy Island - boat access only", ado_2026: null, ado_2027: null, hub: "OP Caramoan Camarines Sur Hub", location_status: "ISLAND" },
+            { name: "Oroc-Osoc", lat: 13.7954048, lon: 123.854583, type: "Mainland", rider: "Rider C", parcels: 0, status: "Normal", notes: "", ado_2026: 13.77, ado_2027: 15.15, hub: "OP Caramoan Camarines Sur Hub", location_status: "PROPER" },
+            { name: "Pagolinan", lat: 13.7167256, lon: 123.8514716, type: "Mainland", rider: "Rider F", parcels: 0, status: "Normal", notes: "", ado_2026: 6.26, ado_2027: 6.89, hub: "OP Caramoan Camarines Sur Hub", location_status: "ISLAND" },
+            { name: "Pandanan", lat: 13.7631416, lon: 123.9511467, type: "Mainland", rider: "Rider E", parcels: 0, status: "Normal", notes: "Eastern peninsula", ado_2026: null, ado_2027: null, hub: "OP Caramoan Camarines Sur Hub", location_status: "PROPER" },
+            { name: "Paniman", lat: 13.8102235, lon: 123.8754124, type: "Mainland", rider: "Rider I", parcels: 0, status: "Normal", notes: "Tourism hub / jump-off for island hopping", ado_2026: 44.41, ado_2027: 48.85, hub: "OP Caramoan Camarines Sur Hub", location_status: "PROPER" },
+            { name: "Patag-Belen", lat: 13.7772993, lon: 123.7841403, type: "Mainland", rider: "Rider B", parcels: 0, status: "Normal", notes: "", ado_2026: 5.18, ado_2027: 5.7, hub: "OP Caramoan Camarines Sur Hub", location_status: "ISLAND" },
+            { name: "Pili-Centro", lat: 13.764506, lon: 123.8514861, type: "Mainland", rider: "Rider D", parcels: 0, status: "Normal", notes: "", ado_2026: 18.59, ado_2027: 20.45, hub: "OP Caramoan Camarines Sur Hub", location_status: "PROPER" },
+            { name: "Pili-Tabiguian", lat: 13.8127779, lon: 123.7803874, type: "Mainland", rider: "Rider B", parcels: 0, status: "Normal", notes: "", ado_2026: 11.81, ado_2027: 12.99, hub: "OP Caramoan Camarines Sur Hub", location_status: "PROPER" },
+            { name: "Poloan", lat: 13.7877944, lon: 123.7821733, type: "Mainland", rider: "Rider B", parcels: 0, status: "Normal", notes: "", ado_2026: 7.87, ado_2027: 8.66, hub: "OP Caramoan Camarines Sur Hub", location_status: "MOUNTAIN" },
+            { name: "Salvacion", lat: 13.7499149, lon: 123.8618658, type: "Mainland", rider: "Rider F", parcels: 0, status: "Normal", notes: "", ado_2026: 35.05, ado_2027: 38.56, hub: "OP Caramoan Camarines Sur Hub", location_status: "PROPER" },
+            { name: "San Roque", lat: 13.7521798, lon: 123.8428089, type: "Mainland", rider: "Rider F", parcels: 0, status: "Normal", notes: "", ado_2026: 14.9, ado_2027: 16.39, hub: "OP Caramoan Camarines Sur Hub", location_status: "PROPER" },
+            { name: "San Vicente", lat: 13.7357124, lon: 123.9338429, type: "Mainland", rider: "Rider E", parcels: 0, status: "Normal", notes: "", ado_2026: 3.29, ado_2027: 3.62, hub: "OP Caramoan Camarines Sur Hub", location_status: "ISLAND" },
+            { name: "Santa Cruz", lat: 13.8188763, lon: 123.7639841, type: "Mainland", rider: "Rider G", parcels: 0, status: "Normal", notes: "", ado_2026: 13.65, ado_2027: 15.02, hub: "OP Caramoan Camarines Sur Hub", location_status: "PROPER" },
+            { name: "Solnopan", lat: 13.7685436, lon: 123.8616282, type: "Mainland", rider: "Rider D", parcels: 0, status: "Normal", notes: "Poblacion Area", ado_2026: 78.7, ado_2027: 86.57, hub: "OP Caramoan Camarines Sur Hub", location_status: "PROPER" },
+            { name: "Tabgon", lat: 13.8293715, lon: 123.812306, type: "Mainland", rider: "Rider H", parcels: 0, status: "Normal", notes: "", ado_2026: 65.25, ado_2027: 71.78, hub: "OP Caramoan Camarines Sur Hub", location_status: "PROPER" },
+            { name: "Tabiguian", lat: 13.8343701, lon: 123.7971385, type: "Mainland", rider: "Rider H", parcels: 0, status: "Normal", notes: "", ado_2026: 20.12, ado_2027: 22.13, hub: "OP Caramoan Camarines Sur Hub", location_status: "PROPER" },
+            { name: "Tabog", lat: 13.7998665, lon: 123.8318433, type: "Mainland", rider: "Rider C", parcels: 0, status: "Normal", notes: "", ado_2026: 15.74, ado_2027: 17.31, hub: "OP Caramoan Camarines Sur Hub", location_status: "MOUNTAIN" },
+            { name: "Tawog (Pob.)", lat: 13.7747914, lon: 123.8635945, type: "Mainland", rider: "Rider D", parcels: 0, status: "Normal", notes: "Poblacion Area / Main market", ado_2026: 167.64, ado_2027: 184.41, hub: "OP Caramoan Camarines Sur Hub", location_status: "PROPER" },
+            { name: "Terogo", lat: 13.7857544, lon: 123.8602824, type: "Mainland", rider: "Rider D", parcels: 0, status: "Normal", notes: "", ado_2026: 22.69, ado_2027: 24.96, hub: "OP Caramoan Camarines Sur Hub", location_status: "PROPER" },
+            { name: "Toboan", lat: 13.8345516, lon: 123.7685007, type: "Mainland", rider: "Rider H", parcels: 0, status: "Normal", notes: "", ado_2026: 6.95, ado_2027: 7.64, hub: "OP Caramoan Camarines Sur Hub", location_status: "MOUNTAIN" }
         ];
 
         // State variables
@@ -1139,23 +1177,52 @@
 
         // Create HTML content for Marker Popup
         function createPopupContent(brgy, index) {
+            const hasAdo = brgy.ado_2026 !== undefined && brgy.ado_2026 !== null;
+            const growth = hasAdo ? ((brgy.ado_2027 - brgy.ado_2026) / brgy.ado_2026 * 100).toFixed(1) : 0;
+            const statusLabel = brgy.location_status || brgy.type;
             return `
                 <div class="popup-header" style="background-color: var(--spx-orange);">
                     <span>${brgy.name}</span>
-                    <span class="status-badge" style="background-color: white; color: var(--spx-orange); font-size: 0.65rem; padding: 2px 6px;">${brgy.type}</span>
+                    <span class="status-badge" style="background-color: white; color: var(--spx-orange); font-size: 0.65rem; padding: 2px 6px; font-weight: 700; border-radius: 4px;">${statusLabel}</span>
                 </div>
-                <div class="popup-body">
+                <div class="popup-body" style="padding: 12px; display: flex; flex-direction: column; gap: 8px;">
+                    <div class="popup-row">
+                        <span class="popup-lbl">Hub:</span>
+                        <span class="popup-val" style="font-size: 0.75rem; text-align: right; max-width: 170px;">${brgy.hub || 'N/A'}</span>
+                    </div>
                     <div class="popup-row">
                         <span class="popup-lbl">Type:</span>
                         <span class="popup-val">${brgy.type}</span>
                     </div>
                     <div class="popup-row">
-                        <span class="popup-lbl">Latitude:</span>
-                        <span class="popup-val">${brgy.lat.toFixed(6)}</span>
+                        <span class="popup-lbl">Rider Assigned:</span>
+                        <span class="popup-val">${brgy.rider || 'N/A'}</span>
                     </div>
-                    <div class="popup-row">
-                        <span class="popup-lbl">Longitude:</span>
-                        <span class="popup-val">${brgy.lon.toFixed(6)}</span>
+                    ${hasAdo ? `
+                    <div style="background-color: var(--bg-primary); border-radius: 8px; padding: 8px; margin-top: 4px; border: 1px solid var(--border-color);">
+                        <div style="font-weight: 700; font-size: 0.7rem; color: var(--text-secondary); margin-bottom: 6px; border-bottom: 1px solid var(--border-color); padding-bottom: 4px; display: flex; justify-content: space-between;">
+                            <span>Average Daily Orders (ADO)</span>
+                            <span style="color: #10b981; font-weight: 800;">+${growth}%</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; font-size: 0.75rem;">
+                            <div>
+                                <div style="font-size: 0.6rem; color: var(--text-muted); font-weight: 600;">EOY 2026</div>
+                                <div style="font-weight: 700; color: var(--text-primary);">${brgy.ado_2026.toFixed(2)}</div>
+                            </div>
+                            <div style="text-align: right;">
+                                <div style="font-size: 0.6rem; color: var(--text-muted); font-weight: 600;">EOY 2027</div>
+                                <div style="font-weight: 700; color: var(--text-primary);">${brgy.ado_2027.toFixed(2)}</div>
+                            </div>
+                        </div>
+                    </div>
+                    ` : `
+                    <div style="background-color: var(--bg-primary); border-radius: 8px; padding: 8px; margin-top: 4px; text-align: center; color: var(--text-muted); font-style: italic;">
+                        No ADO projections available.
+                    </div>
+                    `}
+                    <div class="popup-row" style="margin-top: 4px; font-size: 0.7rem; color: var(--text-muted); border-top: 1px dashed var(--border-color); padding-top: 4px;">
+                        <span>Coordinates:</span>
+                        <span>${brgy.lat.toFixed(4)}, ${brgy.lon.toFixed(4)}</span>
                     </div>
                 </div>
             `;
@@ -1297,14 +1364,32 @@
             // Draw proximity lines for clustering
             renderClusterLines(filteredBrgy);
 
+            const statsGrid = document.getElementById('statsGrid');
+            const statCardAdo2026 = document.getElementById('statCardAdo2026');
+            const statCardAdo2027 = document.getElementById('statCardAdo2027');
+
             if (activeTab === 'barangays') {
                 // Show Barangay list container, Hide Proximity container
                 barangayListEl.style.display = 'block';
                 proximityListEl.style.display = 'none';
 
-                // Update Stats
+                // Update Stats Grid Columns & display ADO cards
+                if (statsGrid) statsGrid.style.gridTemplateColumns = 'repeat(3, 1fr)';
+                if (statCardAdo2026) statCardAdo2026.style.display = 'block';
+                if (statCardAdo2027) statCardAdo2027.style.display = 'block';
+
                 statTotalBrgy.innerText = filteredBrgy.length;
-                statLabelText.innerText = 'TOTAL ACTIVE BARANGAYS';
+                statTotalBrgy.style.fontSize = '1.2rem';
+                statLabelText.innerText = 'ACTIVE BRGYS';
+
+                // Calculate total ADO values
+                const totalAdo2026 = filteredBrgy.reduce((sum, b) => sum + (b.ado_2026 || 0), 0);
+                const totalAdo2027 = filteredBrgy.reduce((sum, b) => sum + (b.ado_2027 || 0), 0);
+
+                const statAdo2026El = document.getElementById('statAdo2026');
+                const statAdo2027El = document.getElementById('statAdo2027');
+                if (statAdo2026El) statAdo2026El.innerText = totalAdo2026.toFixed(1);
+                if (statAdo2027El) statAdo2027El.innerText = totalAdo2027.toFixed(1);
 
                 // Render Barangay List
                 barangayListEl.innerHTML = '';
@@ -1330,15 +1415,30 @@
                     item.className = `barangay-item ${isSelected ? 'active-selected' : ''}`;
                     item.setAttribute('data-index', brgy.originalIndex);
 
+                    const locationBadge = brgy.location_status 
+                        ? `<span class="location-status-badge ${brgy.location_status.toLowerCase()}">${brgy.location_status}</span>`
+                        : '';
+
+                    const adoDisplay = (brgy.ado_2026 !== undefined && brgy.ado_2026 !== null)
+                        ? `ADO: <strong>${brgy.ado_2026.toFixed(1)}</strong> ('26) → <strong>${brgy.ado_2027.toFixed(1)}</strong> ('27)`
+                        : 'No ADO Projections';
+
                     item.innerHTML = `
-                        <div class="item-left">
-                            <span class="item-number">${displayNum}</span>
-                            <i class="fa-solid fa-location-dot" style="color: var(--spx-orange); font-size: 0.8rem; margin-right: 8px;" title="Barangay Pin"></i>
-                            <span class="item-name">${brgy.name}</span>
+                        <div class="item-left" style="gap: 12px; align-items: flex-start; max-width: 75%;">
+                            <span class="item-number" style="margin-top: 2px;">${displayNum}</span>
+                            <div style="display: flex; flex-direction: column; gap: 3px;">
+                                <div style="display: flex; align-items: center; gap: 6px;">
+                                    <i class="fa-solid fa-location-dot" style="color: var(--spx-orange); font-size: 0.8rem;" title="Barangay Pin"></i>
+                                    <span class="item-name">${brgy.name}</span>
+                                </div>
+                                <span class="item-ado" style="font-size: 0.7rem; color: var(--text-muted); font-weight: 500;">
+                                    ${adoDisplay}
+                                </span>
+                            </div>
                         </div>
-                        <div class="item-right">
+                        <div class="item-right" style="flex-direction: column; align-items: flex-end; gap: 5px;">
                             <span class="item-type-badge ${brgy.type.toLowerCase()}">${brgy.type}</span>
-                            <i class="fa-solid fa-chevron-right" style="font-size: 0.75rem; color: var(--text-muted); opacity: 0.7;"></i>
+                            ${locationBadge}
                         </div>
                     `;
 
@@ -1354,11 +1454,17 @@
                 barangayListEl.style.display = 'none';
                 proximityListEl.style.display = 'block';
 
+                // Update Stats Grid Columns & hide ADO cards
+                if (statsGrid) statsGrid.style.gridTemplateColumns = '1fr';
+                if (statCardAdo2026) statCardAdo2026.style.display = 'none';
+                if (statCardAdo2027) statCardAdo2027.style.display = 'none';
+
                 // Get proximity connections list
                 const connections = getProximityPairs(filteredBrgy);
 
                 // Update Stats
                 statTotalBrgy.innerText = connections.length;
+                statTotalBrgy.style.fontSize = '1.8rem';
                 statLabelText.innerText = 'TOTAL PROXIMITY CONNECTIONS';
 
                 // Render Proximity connections List
@@ -1596,7 +1702,7 @@
                 // Reset search query
                 searchInput.value = '';
                 searchQuery = '';
-                searchInput.placeholder = 'Maghanap ng Barangay (e.g. Tawog)...';
+                searchInput.placeholder = 'Search Barangay (e.g. Tawog)...';
 
                 updateUI();
             });
